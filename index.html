@@ -83,6 +83,27 @@
       font-weight: 600;
       /* semibold */
     }
+    
+    /* Responsive YouTube video styles */
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      margin-top: 2rem;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      max-width:800px;
+      max-height: 450px
+      
+    }
   </style>
 </head>
 
@@ -171,7 +192,7 @@
               class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
             <span>Open Demat Account <b><i class="text-orange-600">Zerodha-Kite</i></b></span>
           </a>
-          <a href="https://join.dhan.co/?invite=MJXCH55865"  target="_blank" class="mx-4 md:mx-6 hover:underline transition-all">
+          <a href="https://join.dhan.co/?invite=MJXCH55865" target="_blank" class="mx-4 md:mx-6 hover:underline transition-all">
             <img src="https://placehold.co/25x25/22c55e/FFFFFF?text=D" alt="Dhan Logo"
               class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
             <span>Open Demat Account <b><i class="text-green-500">Dhan</i></b></span>
@@ -219,7 +240,11 @@
       <!-- Error messages (UI-only) -->
       <div id="errorMessage" class="hidden p-4 text-center text-red-400 italic text-sm"></div>
     </div>
-      <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/CrQfUXBHo3I?si=T4oL3p1E8ujfEXzC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    
+    <!-- Video container with new classes for responsiveness -->
+    <div class="video-container">
+       <iframe src="https://www.youtube-nocookie.com/embed/CrQfUXBHo3I?si=T4oL3p1E8ujfEXzC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"  allowfullscreen></iframe>
+    </div>
 
   </main>
 
@@ -243,7 +268,7 @@
       </button>
       <h3 class="text-xl md:text-2xl font-bold text-center text-blue-400 mb-4 md:mb-6">Scan to Donate</h3>
       <div class="text-center">
-        <img id="upiQrCode" src="UPI.jpg" alt="UPI QR Code"
+        <img id="upiQrCode" src="images/UPI.jpg" alt="UPI QR Code"
           class="rounded-lg shadow-lg mx-auto mb-4 w-48 h-48 md:w-auto md:h-auto">
         <p class="text-slate-400 text-xs md:text-sm">Thank you for your support!</p>
       </div>
@@ -537,11 +562,11 @@
         const batch = stockList.slice(i, i + BATCH_SIZE);
         const promises = batch.map(stock =>
           fetchData(stock[0], stock[1], down, SMA_period)
-            .then(data => {
-              if (Object.keys(data).length !== 0) {
-                finalOutput[stock[1]] = data;
-              }
-            })
+          .then(data => {
+            if (Object.keys(data).length !== 0) {
+              finalOutput[stock[1]] = data;
+            }
+          })
         );
 
         await Promise.all(promises);
@@ -560,19 +585,19 @@
 
       // Set up table headers
       tableHead.innerHTML = `
-                <tr>
-                    <th class="rounded-tl-xl">Stock Symbol</th>
-                    <th>Highest Price</th>
-                    <th>Today's  Low</th>
-                    <th>% Down from High</th>
-                    <th>Till 2025 Lowest</th>
-                    <th>Till 2024 Lowest</th>
-                    <th>Till 2023 Lowest</th>
-                    <th>Till 2022 Lowest</th>
-                    <th>Till 2021 Lowest</th>
-                    <th class="rounded-tr-xl">Till 2020 Lowest</th>
-                </tr>
-            `;
+          <tr>
+            <th class="rounded-tl-xl">Stock Symbol</th>
+            <th>Highest Price</th>
+            <th>Today's  Low</th>
+            <th>% Down from High</th>
+            <th>Till 2025 Lowest</th>
+            <th>Till 2024 Lowest</th>
+            <th>Till 2023 Lowest</th>
+            <th>Till 2022 Lowest</th>
+            <th>Till 2021 Lowest</th>
+            <th class="rounded-tr-xl">Till 2020 Lowest</th>
+          </tr>
+        `;
 
       forEachStock(stockList, down, sma);
     });
@@ -588,17 +613,17 @@
       for (let stock of stocksToShow) {
         const row = document.createElement("tr");
         row.innerHTML = `
-                    <td>${stock.stock_symbol || '-'}</td>
-                    <td>${stock.highestPrice ? stock.highestPrice.toFixed(2) : '-'}</td>
-                    <td>${stock.todayLowPrice ? stock.todayLowPrice.toFixed(2) : '-'}</td>
-                    <td class="down-from-top">${stock.percentageDown || '-'}</td>
-                    <td>${stock.yearLowPrice2025 ? stock.yearLowPrice2025.toFixed(2) : '-'}</td>
-                    <td>${stock.yearLowPrice2024 ? stock.yearLowPrice2024.toFixed(2) : '-'}</td>
-                    <td>${stock.yearLowPrice2023 ? stock.yearLowPrice2023.toFixed(2) : '-'}</td>
-                    <td>${stock.yearLowPrice2022 ? stock.yearLowPrice2022.toFixed(2) : '-'}</td>
-                    <td>${stock.yearLowPrice2021 ? stock.yearLowPrice2021.toFixed(2) : '-'}</td>
-                    <td>${stock.yearLowPrice2020 ? stock.yearLowPrice2020.toFixed(2) : '-'}</td>
-                `;
+            <td>${stock.stock_symbol || '-'}</td>
+            <td>${stock.highestPrice ? stock.highestPrice.toFixed(2) : '-'}</td>
+            <td>${stock.todayLowPrice ? stock.todayLowPrice.toFixed(2) : '-'}</td>
+            <td class="down-from-top">${stock.percentageDown || '-'}</td>
+            <td>${stock.yearLowPrice2025 ? stock.yearLowPrice2025.toFixed(2) : '-'}</td>
+            <td>${stock.yearLowPrice2024 ? stock.yearLowPrice2024.toFixed(2) : '-'}</td>
+            <td>${stock.yearLowPrice2023 ? stock.yearLowPrice2023.toFixed(2) : '-'}</td>
+            <td>${stock.yearLowPrice2022 ? stock.yearLowPrice2022.toFixed(2) : '-'}</td>
+            <td>${stock.yearLowPrice2021 ? stock.yearLowPrice2021.toFixed(2) : '-'}</td>
+            <td>${stock.yearLowPrice2020 ? stock.yearLowPrice2020.toFixed(2) : '-'}</td>
+          `;
         tableBody.appendChild(row);
       }
     }
@@ -606,4 +631,3 @@
 </body>
 
 </html>
-
