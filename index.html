@@ -2,622 +2,860 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upstox Stock Screener</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upstox Stock Screener</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #e2e8f0;
-        }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f172a;
+      color: #e2e8f0;
+    }
 
-        /* Custom animation for the ticker tape */
-        @keyframes ticker-scroll {
-            0% {
-                transform: translateX(100%);
-            }
+    /* Custom animation for the ticker tape */
+    @keyframes ticker-scroll {
+      0% {
+        transform: translateX(100%);
+      }
 
-            100% {
-                transform: translateX(-100%);
-            }
-        }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
 
-        .ticker-tape {
-            white-space: nowrap;
-            overflow: hidden;
-            box-sizing: border-box;
-            -webkit-mask-image: linear-gradient(90deg, transparent, #fff 20%, #fff 80%, transparent);
-            mask-image: linear-gradient(90deg, transparent, #fff 20%, #fff 80%, transparent);
-        }
+    .ticker-tape {
+      white-space: nowrap;
+      overflow: hidden;
+      box-sizing: border-box;
+      -webkit-mask-image: linear-gradient(90deg, transparent, #fff 20%, #fff 80%, transparent);
+      mask-image: linear-gradient(90deg, transparent, #fff 20%, #fff 80%, transparent);
+    }
 
-        .ticker-tape div {
-            display: inline-block;
-            animation: ticker-scroll 25s linear infinite;
-        }
+    .ticker-tape div {
+      display: inline-block;
+      animation: ticker-scroll 25s linear infinite;
+    }
 
-        /* Custom styles for the table */
-        /* Adjusted padding and font size for a more compact look */
-        th,
-        td {
-            padding: 8px 12px;
-            font-size: 0.875rem;
-            /* text-sm */
-            text-align: left;
-            border-bottom: 1px solid #1e293b;
-        }
+    /* Custom styles for the table */
+    /* Adjusted padding and font size for a more compact look */
+    th,
+    td {
+      padding: 8px 12px;
+      font-size: 0.875rem;
+      /* text-sm */
+      text-align: left;
+      border-bottom: 1px solid #1e293b;
+    }
 
-        /* Darker background for odd rows for readability */
-        tr:nth-child(odd) {
-            background-color: #1e293b;
-        }
+    /* Darker background for odd rows for readability */
+    tr:nth-child(odd) {
+      background-color: #1e293b;
+    }
 
-        /* Responsive table */
-        .table-container {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
+    /* Responsive table */
+    .table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
 
-        /* Modal specific styles */
-        .modal {
-            background-color: rgba(0, 0, 0, 0.7);
-        }
+    /* Modal specific styles */
+    .modal {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
 
-        /* New styles for the 'Down from Top' column to make it red and bold */
-        .down-from-top {
-            color: #ef4444;
-            /* Tailwind's red-500 */
-            font-weight: 600;
-            /* semibold */
-        }
+    /* New styles for the 'Down from Top' column to make it red and bold */
+    .down-from-top {
+      color: #ef4444;
+      /* Tailwind's red-500 */
+      font-weight: 600;
+      /* semibold */
+    }
 
-        /* Custom styles for the table header to make it different */
-        .table-head-custom th {
-            background-color: #2a3a5a;
-            /* A darker blue for distinction */
-            color: #94a3b8;
-            /* A lighter grey for contrast */
-            font-weight: 600;
-            /* semibold */
-        }
-    </style>
+    /* Custom styles for the table header to make it different */
+    .table-head-custom th {
+      background-color: #2a3a5a;
+      /* A darker blue for distinction */
+      color: #94a3b8;
+      /* A lighter grey for contrast */
+      font-weight: 600;
+      /* semibold */
+    }
+  </style>
 </head>
 
 <body class="antialiased flex flex-col min-h-screen bg-slate-950">
-    <header class="bg-slate-800 shadow-xl p-2 md:p-4 sticky top-0 z-50">
-        <div class="ticker-tape font-mono text-xs md:text-sm text-yellow-300">
-            <div>
-                <button id="donateBtn" class="mx-4 md:mx-6 hover:underline transition-all">
-                    <span class="text-orange-400">💰</span> Donate via UPI
-                </button>
-                <a href="https://zerodha.com/open-account?c=XCK853" class="mx-4 md:mx-6 hover:underline transition-all">
-                    <img id="ZerodhaLogo" src="https://placehold.co/25x25/FC3E14/FFFFFF?text=K"alt="Zerodha Logo"
-                        class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
-                    <span>
-                        Open Demat Account <b><i class="text-orange-600">Zerodha</i></b>
-                    </span>
-                </a>
-                <a href="https://join.dhan.co/?invite=MJXCH55865" class="mx-4 md:mx-6 hover:underline transition-all">
-                    <img id="dhanLogo" src="https://placehold.co/25x25/22c55e/FFFFFF?text=D" alt="Dhan Logo"
-                        class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
-                    <span>
-                        Open Demat Account <b><i class="text-green-500">Dhan</i></b>
-                    </span>
-                </a>
-                <a href="https://upstox.onelink.me/0H1s/3SCVP2" class="mx-4 md:mx-6 hover:underline transition-all">
-                    <img id="upstoxLogo" src="https://placehold.co/25x25/a855f7/FFFFFF?text=U" alt="Upstox Logo"
-                        class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
-                    <span>Open Demat Account <b><i class="text-fuchsia-500">Upstox</i></b> </span>
-                </a>
-            </div>
-        </div>
-    </header>
-
-    <main id="main" class="flex-grow container mx-auto px-2 md:px-4 py-4 md:py-8">
-        <div class="flex flex-col w-full md:w-auto">
-
-            <button id="showStocksBtn"
-                class="mt-4 md:mt-0 px-8 py-2 bg-slate-700 text-white rounded-xl font-semibold hover:bg-slate-600 transition-all duration-300 flex items-center justify-center gap-2 w-full md:w-64 shadow-md hover:shadow-lg transform hover:scale-105 text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                        d="M2 5a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V5zM4 9a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2v-6a2 2 0 00-2-2H4z" />
-                </svg>
-                Show All Stocks
-            </button>
-        </div>
-        <h1 class="text-3xl md:text-5xl font-extrabold text-center text-blue-400 mb-4 md:mb-6 drop-shadow-lg">
-            Stock Screener
-        </h1>
-
-        <p class="text-sm md:text-lg text-center text-slate-400 mb-6 md:mb-8">
-            Find potential investment opportunities with a custom stock filter.
-        </p>
-
-        <div
-            class="bg-slate-800 rounded-2xl shadow-2xl p-4 md:p-6 mb-4 flex flex-col md:flex-row items-end justify-evenly gap-3 transition-all duration-300">
-            <div class="flex flex-col w-full">
-                <label for="down" class="text-xs font-medium mb-1 text-slate-400">Down % from Top:</label>
-                <input type="number" id="down" value="20" min="0" max="100" step="1"
-                    class="bg-slate-700 text-white rounded-xl p-2 w-full md:w-28 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
-            </div>
-            <div class="flex flex-col w-full">
-                <label for="sma" class="text-xs font-medium mb-1 text-slate-400">SMA Period:</label>
-                <input type="number" id="sma" value="200" min="1" step="1"
-                    class="bg-slate-700 text-white rounded-xl p-2 w-full md:w-28 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
-            </div>
-            <div class="flex flex-col w-full md:w-auto">
-                <label for="fetchBtn" class="text-sm font-medium mb-1 text-slate-400 opacity-0 select-none">Submit
-                    Button</label>
-                <button id="fetchBtn"
-                    class="px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all duration-300 shadow-md hover:shadow-lg w-full md:w-auto transform hover:scale-105 text-sm">
-                    Submit
-                </button>
-            </div>
-        </div>
-
-        <div id="allStockName"
-            class="hidden fixed inset-0 z-50 bg-slate-900 bg-opacity-95 p-6 overflow-y-auto transition-all duration-300">
-            <div class="ticker-tape font-mono text-xs md:text-sm text-yellow-300 mb-4 md:mb-6">
-                <div>
-                    <button id="donateBtnModal" class="mx-4 md:mx-6 hover:underline transition-all">
-                        <span class="text-orange-400">💰</span> Donate via UPI
-                    </button>
-                    <a href="https://zerodha.com/open-account?c=XCK853"
-                        class="mx-4 md:mx-6 hover:underline transition-all">
-                        <img src="https://placehold.co/25x25/FC3E14/FFFFFF?text=K" alt="Zerodha Logo"
-                            class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
-                        <span>Open Demat Account <b><i class="text-orange-600">Zerodha-Kite</i></b></span>
-                    </a>
-                    <a href="https://join.dhan.co/?invite=MJXCH55865"
-                        class="mx-4 md:mx-6 hover:underline transition-all">
-                        <img src="https://placehold.co/25x25/22c55e/FFFFFF?text=D" alt="Dhan Logo"
-                            class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
-                        <span>Open Demat Account <b><i class="text-green-500">Dhan</i></b></span>
-                    </a>
-                    <a href="https://upstox.onelink.me/0H1s/3SCVP2"
-                        class="mx-4 md:mx-6 hover:underline transition-all">
-                        <img src="https://placehold.co/25x25/a855f7/FFFFFF?text=U" alt="Upstox Logo"
-                            class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
-                        <span>Open Demat Account <b><i class="text-fuchsia-500">Upstox</i></b> </span>
-                    </a>
-                </div>
-            </div>
-            <div class="flex justify-between items-center mb-4 md:mb-6">
-                <h2 class="text-2xl md:text-3xl font-bold text-blue-400">All Available Stocks</h2>
-                <button id="closeStocksBtn" class="text-white hover:text-red-500 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div id="stockListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                </div>
-        </div>
-
-        <div class="w-full text-center mb-6 md:mb-8">
-            <p class="text-xs md:text-sm italic text-slate-400">
-                <span class="font-bold text-red-400 mr-1">Disclaimer:</span> Data shown is for informational purposes
-                only and
-                does not constitute financial advice.
-            </p>
-        </div>
-
-        <div class="table-container bg-slate-800 rounded-xl shadow-xl">
-            <table id="table" class="w-full">
-                <thead id="tableHead" class="text-slate-400 uppercase text-xs table-head-custom">
-                    </thead>
-                <tbody id="tableBody" class="text-sm">
-                    </tbody>
-            </table>
-            <div id="noDataMessage" class="hidden p-4 text-center text-slate-400 italic text-sm">
-                No stocks found matching the criteria.
-            </div>
-            <div id="loading" class="hidden p-4 text-center text-blue-400 animate-pulse text-sm">
-                Fetching data... please wait.
-            </div>
-        </div>
-    </main>
-
-    <footer id="footer" class="text-center p-4 text-xs md:text-sm text-slate-500 mt-4 md:mt-8 border-t border-slate-700">
-        <p><span class="font-bold text-red-400 mr-1">Disclaimer:</span> The following data is provided for informational
-            and
-            research purposes only. It represents historical and current stock price information and does not constitute
-            financial advice or a recommendation to buy, sell, or hold any stock. Please consult with a licensed
-            financial
-            advisor before making investment decisions. The website owner is not responsible for any financial losses
-            arising
-            from the use of this information.</p>
-    </footer>
-
-    <div id="upiModal"
-        class="hidden modal fixed inset-0 z-[100] flex items-center justify-center p-4 transition-opacity duration-300">
-        <div
-            class="bg-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-sm relative transform scale-95 opacity-0 transition-all duration-300">
-            <button id="closeUpiModalBtn"
-                class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-            <h3 class="text-xl md:text-2xl font-bold text-center text-blue-400 mb-4 md:mb-6">Scan to Donate</h3>
-            <div class="text-center">
-                <img id="upiQrCode" src="UPI.jpg"
-                    alt="UPI QR Code" class="rounded-lg shadow-lg mx-auto mb-4 w-48 h-48 md:w-auto md:h-auto">
-                <p class="text-slate-400 text-xs md:text-sm">Thank you for your support!</p>
-            </div>
-        </div>
+  <header class="bg-slate-800 shadow-xl p-2 md:p-4 sticky top-0 z-50">
+    <div class="ticker-tape font-mono text-xs md:text-sm text-yellow-300">
+      <div>
+        <button id="donateBtn" class="mx-4 md:mx-6 hover:underline transition-all">
+          <span class="text-orange-400">💰</span> Donate via UPI
+        </button>
+        <a href="https://zerodha.com/open-account?c=XCK853" class="mx-4 md:mx-6 hover:underline transition-all">
+          <img id="ZerodhaLogo" src="https://placehold.co/25x25/FC3E14/FFFFFF?text=K" alt="Zerodha Logo"
+            class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
+          <span>
+            Open Demat Account <b><i class="text-orange-600">Zerodha</i></b>
+          </span>
+        </a>
+        <a href="https://join.dhan.co/?invite=MJXCH55865" class="mx-4 md:mx-6 hover:underline transition-all">
+          <img id="dhanLogo" src="https://placehold.co/25x25/22c55e/FFFFFF?text=D" alt="Dhan Logo"
+            class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
+          <span>
+            Open Demat Account <b><i class="text-green-500">Dhan</i></b>
+          </span>
+        </a>
+        <a href="https://upstox.onelink.me/0H1s/3SCVP2" class="mx-4 md:mx-6 hover:underline transition-all">
+          <img id="upstoxLogo" src="https://placehold.co/25x25/a855f7/FFFFFF?text=U" alt="Upstox Logo"
+            class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
+          <span>Open Demat Account <b><i class="text-fuchsia-500">Upstox</i></b> </span>
+        </a>
+      </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </header>
 
-    <script>
-        const stockList = [
-  ["NSE_EQ|INE397D01024", "BHARTIARTL", "Bharti Airtel"],
-  ["NSE_EQ|INE118H01025", "BSE", "BSE"],
-  ["NSE_EQ|INE009A01021", "INFY", "Infosys"],
-  ["NSE_EQ|INE467B01029", "TCS", "Tata Consultancy Services"],
-  ["NSE_EQ|INE002A01018", "RELIANCE", "Reliance Industries"],
-  ["NSE_EQ|INE466L01038", "360ONE", "360 ONE WAM"],
-  ["NSE_EQ|INE769A01020", "AARTIIND", "Aarti Industries"],
-  ["NSE_EQ|INE674K01013", "ABCAPITAL", "Aditya Birla Capital"],
-  ["NSE_EQ|INE012A01025", "ACC", "ACC"],
-  ["NSE_EQ|INE931S01010", "ADANIENSOL", "Adani Energy Solutions"],
-  ["NSE_EQ|INE423A01024", "ADANIENT", "Adani Enterprises"],
-  ["NSE_EQ|INE364U01010", "ADANIGREEN", "Adani Green Energy"],
-  ["NSE_EQ|INE742F01042", "ADANIPORTS", "Adani Ports and Special Economic Zone"],
-  ["NSE_EQ|INE540L01014", "ALKEM", "Alkem Laboratories"],
-  ["NSE_EQ|INE079A01024", "AMBUJACEM", "Ambuja Cements"],
-  ["NSE_EQ|INE732I01013", "ANGELONE", "Angel One"],
-  ["NSE_EQ|INE702C01027", "APLAPOLLO", "APL Apollo Tubes"],
-  ["NSE_EQ|INE208A01029", "ASHOKLEY", "Ashok Leyland"],
-  ["NSE_EQ|INE021A01026", "ASIANPAINT", "Asian Paints"],
-  ["NSE_EQ|INE006I01046", "ASTRAL", "Astral"],
-  ["NSE_EQ|INE399L01023", "ATGL", "Adani Total Gas"],
-  ["NSE_EQ|INE949L01017", "AUBANK", "AU Small Finance Bank"],
-  ["NSE_EQ|INE406A01037", "AUROPHARMA", "Aurobindo Pharma"],
-  ["NSE_EQ|INE238A01034", "AXISBANK", "Axis Bank"],
-  ["NSE_EQ|INE918I01026", "BAJAJFINSV", "Bajaj Finserv"],
-  ["NSE_EQ|INE296A01032", "BAJFINANCE", "Bajaj Finance"],
-  ["NSE_EQ|INE787D01026", "BALKRISIND", "Balkrishna Industries"],
-  ["NSE_EQ|INE545U01014", "BANDHANBNK", "Bandhan Bank"],
-  ["NSE_EQ|INE028A01039", "BANKBARODA", "Bank of Baroda"],
-  ["NSE_EQ|INE084A01016", "BANKINDIA", "Bank of India"],
-  ["NSE_EQ|INE171Z01026", "BDL", "Bharat Dynamics"],
-  ["NSE_EQ|INE263A01024", "BEL", "Bharat Electronics"],
-  ["NSE_EQ|INE465A01025", "BHARATFORG", "Bharat Forge"],
-  ["NSE_EQ|INE257A01026", "BHEL", "Bharat Heavy Electricals"],
-  ["NSE_EQ|INE376G01013", "BIOCON", "Biocon"],
-  ["NSE_EQ|INE472A01039", "BLUESTARCO", "Blue Star"],
-  ["NSE_EQ|INE029A01011", "BPCL", "Bharat Petroleum Corporation"],
-  ["NSE_EQ|INE836A01035", "BSOFT", "BIRLASOFT"],
-  ["NSE_EQ|INE596I01012", "CAMS", "Computer Age Management Services"],
-  ["NSE_EQ|INE476A01022", "CANBK", "Canara Bank"],
-  ["NSE_EQ|INE736A01011", "CDSL", "Central Depository Services(India)"],
-  ["NSE_EQ|INE486A01021", "CESC", "CESC"],
-  ["NSE_EQ|INE067A01029", "CGPOWER", "CG Power and Industrial Solutions"],
-  ["NSE_EQ|INE085A01013", "CHAMBLFERT", "Chambal Fertilizers & Chemicals"],
-  ["NSE_EQ|INE121A01024", "CHOLAFIN", "Cholamandalam Investment and Finance Company"],
-  ["NSE_EQ|INE059A01026", "CIPLA", "Cipla"],
-  ["NSE_EQ|INE522F01014", "COALINDIA", "Coal India"],
-  ["NSE_EQ|INE591G01025", "COFORGE", "Coforge"],
-  ["NSE_EQ|INE259A01022", "COLPAL", "Colgate Palmolive(India)"],
-  ["NSE_EQ|INE111A01025", "CONCOR", "Container Corporation of India"],
-  ["NSE_EQ|INE298A01020", "CUMMINSIND", "Cummins India"],
-  ["NSE_EQ|INE136B01020", "CYIENT", "Cyient"],
-  ["NSE_EQ|INE016A01026", "DABUR", "Dabur India"],
-  ["NSE_EQ|INE00R701025", "DALBHARAT", "Dalmia Bharat"],
-  ["NSE_EQ|INE148O01028", "DELHIVERY", "Delhivery"],
-  ["NSE_EQ|INE271C01023", "DLF", "DLF"],
-  ["NSE_EQ|INE192R01011", "DMART", "Avenue Supermarts"],
-  ["NSE_EQ|INE089A01031", "DRREDDY", "Dr. Reddy's Laboratories"],
-  ["NSE_EQ|INE758T01015", "ETERNAL", "ETERNAL"],
-  ["NSE_EQ|INE302A01020", "EXIDEIND", "Exide Industries"],
-  ["NSE_EQ|INE171A01029", "FEDERALBNK", "The Federal Bank"],
-  ["NSE_EQ|INE061F01013", "FORTIS", "Fortis Healthcare"],
-  ["NSE_EQ|INE129A01019", "GAIL", "GAIL(India)"],
-  ["NSE_EQ|INE935A01035", "GLENMARK", "Glenmark Pharmaceuticals"],
-  ["NSE_EQ|INE102D01028", "GODREJCP", "Godrej Consumer Products"],
-  ["NSE_EQ|INE484J01027", "GODREJPROP", "Godrej Properties"], 
-  ["NSE_EQ|INE101D01020", "GRANULES", "Granules India"],
-  ["NSE_EQ|INE047A01021", "GRASIM", "Grasim Industries"],
-  ["NSE_EQ|INE066F01020", "HAL", "Hindustan Aeronautics"],
-  ["NSE_EQ|INE176B01034", "HAVELLS", "Havells India"],
-  ["NSE_EQ|INE860A01027", "HCLTECH", "HCL Technologies"],
-  ["NSE_EQ|INE040A01034", "HDFCBANK", "HDFC Bank"],
-  ["NSE_EQ|INE795G01014", "HDFCLIFE", "HDFC Life Insurance Company"],
-  ["NSE_EQ|INE158A01026", "HEROMOTOCO", "Hero MotoCorp"],
-  ["NSE_EQ|INE531E01026", "HINDCOPPER", "Hindustan Copper"],
-  ["NSE_EQ|INE094A01015", "HINDPETRO", "Hindustan Petroleum Corporation"],
-  ["NSE_EQ|INE030A01027", "HINDUNILVR", "Hindustan Unilever"],
-  ["NSE_EQ|INE267A01025", "HINDZINC", "Hindustan Zinc"],
-  ["NSE_EQ|INE031A01017", "HUDCO", "Housing & Urban Development Corporation"],
-  ["NSE_EQ|INE090A01021", "ICICIBANK", "ICICI Bank"],
-  ["NSE_EQ|INE765G01017", "ICICIGI", "ICICI Lombard General Insurance Company"],
-  ["NSE_EQ|INE726G01019", "ICICIPRULI", "ICICI Prudential Life Insurance Company"],
-  ["NSE_EQ|INE022Q01020", "IEX", "Indian Energy Exchange"],
-  ["NSE_EQ|INE203G01027", "IGL", "Indraprastha Gas"],
-  ["NSE_EQ|INE530B01024", "IIFL", "IIFL Finance"],
-  ["NSE_EQ|INE053A01029", "INDHOTEL", "The Indian Hotels Company"],
-  ["NSE_EQ|INE562A01011", "INDIANB", "Indian Bank"],
-  ["NSE_EQ|INE095A01012", "INDUSINDBK", "IndusInd Bank"],
-  ["NSE_EQ|INE121J01017", "INDUSTOWER", "Indus Towers"],
-  ["NSE_EQ|INE066P01011", "INOXWIND", "Inox Wind"],
-  ["NSE_EQ|INE242A01010", "IOC", "Indian Oil Corporation"],
-  ["NSE_EQ|INE335Y01020", "IRCTC", "Indian Railway Catering And Tourism Corporation"],
-  ["NSE_EQ|INE202E01016", "IREDA", "Indian Renewable Energy Development Agency"],
-  ["NSE_EQ|INE053F01010", "IRFC", "Indian Railway Finance Corporation"],
-  ["NSE_EQ|INE154A01025", "ITC", "ITC"],
-  ["NSE_EQ|INE749A01030", "JINDALSTEL", "Jindal Steel & Power"],
-  ["NSE_EQ|INE758E01017", "JIOFIN", "Jio Financial Services"],
-  ["NSE_EQ|INE220G01021", "JSL", "Jindal Stainless"],
-  ["NSE_EQ|INE121E01018", "JSWENERGY", "JSW Energy"],
-  ["NSE_EQ|INE019A01038", "JSWSTEEL", "JSW Steel"],
-  ["NSE_EQ|INE797F01020", "JUBLFOOD", "Jubilant Foodworks"],
-  ["NSE_EQ|INE303R01014", "KALYANKJIL", "Kalyan Jewellers India"],
-  ["NSE_EQ|INE878B01027", "KEI", "KEI Industries"],
-  ["NSE_EQ|INE138Y01010", "KFINTECH", "Kfin Technologies"],
-  ["NSE_EQ|INE237A01028", "KOTAKBANK", "Kotak Mahindra Bank"],
-  ["NSE_EQ|INE04I401011", "KPITTECH", "KPIT Technologies"],
-  ["NSE_EQ|INE947Q01028", "LAURUSLABS", "Laurus Labs"],
-  ["NSE_EQ|INE115A01026", "LICHSGFIN", "LIC Housing Finance"],
-  ["NSE_EQ|INE0J1Y01017", "LICI", "Life Insurance Corporation Of India"],
-  ["NSE_EQ|INE670K01029", "LODHA", "Macrotech Developers"],
-  ["NSE_EQ|INE018A01030", "LT", "Larsen & Toubro"],
-  ["NSE_EQ|INE498L01015", "LTF", "L&T Finance"],
-  ["NSE_EQ|INE326A01037", "LUPIN", "Lupin"],
-  ["NSE_EQ|INE101A01026", "M&M", "Mahindra & Mahindra"],
-  ["NSE_EQ|INE774D01024", "M&MFIN", "Mahindra & Mahindra Financial Services"],
-  ["NSE_EQ|INE522D01027", "MANAPPURAM", "Manappuram Finance"],
-  ["NSE_EQ|INE634S01028", "MANKIND", "Mankind Pharma"],
-  ["NSE_EQ|INE196A01026", "MARICO", "Marico"],
-  ["NSE_EQ|INE027H01010", "MAXHEALTH", "Max Healthcare Institute"],
-  ["NSE_EQ|INE249Z01020", "MAZDOCK", "Mazagon Dock Shipbuilders"],
-  ["NSE_EQ|INE180A01020", "MFSL", "Max Financial Services"],
-  ["NSE_EQ|INE002S01010", "MGL", "Mahanagar Gas"],
-  ["NSE_EQ|INE775A01035", "MOTHERSON", "Samvardhana Motherson International"],
-  ["NSE_EQ|INE356A01018", "MPHASIS", "MphasiS"],
-  ["NSE_EQ|INE414G01012", "MUTHOOTFIN", "Muthoot Finance"],
-  ["NSE_EQ|INE139A01034", "NATIONALUM", "National Aluminium Company"],
-  ["NSE_EQ|INE663F01032", "NAUKRI", "Info Edge(India)"],
-  ["NSE_EQ|INE095N01031", "NBCC", "NBCC(India)"],
-  ["NSE_EQ|INE868B01028", "NCC", "NCC"],
-  ["NSE_EQ|INE239A01024", "NESTLEIND", "Nestle India"],
-  ["NSE_EQ|INE733E01010", "NTPC", "NTPC"],
-  ["NSE_EQ|INE388Y01029", "NYKAA", "FSN E-Commerce Ventures"],
-  ["NSE_EQ|INE093I01010", "OBEROIRLTY", "Oberoi Realty"],
-  ["NSE_EQ|INE274J01014", "OIL", "Oil India"],
-  ["NSE_EQ|INE213A01029", "ONGC", "Oil & Natural Gas Corporation"],
-  ["NSE_EQ|INE619A01035", "PATANJALI", "Patanjali Foods"],
-  ["NSE_EQ|INE982J01020", "PAYTM", "One 97 Communications"],
-  ["NSE_EQ|INE140A01024", "PEL", "Piramal Enterprises"],
-  ["NSE_EQ|INE347G01014", "PETRONET", "Petronet LNG"],
-  ["NSE_EQ|INE134E01011", "PFC", "Power Finance Corporation"],
-  ["NSE_EQ|INE457L01029", "PGEL", "PG Electroplast"],
-  ["NSE_EQ|INE211B01039", "PHOENIXLTD", "The Phoenix Mills"],
-  ["NSE_EQ|INE318A01026", "PIDILITIND", "Pidilite Industries"],
-  ["NSE_EQ|INE603J01030", "PIIND", "PI Industries"],
-  ["NSE_EQ|INE160A01022", "PNB", "Punjab National Bank"],
-  ["NSE_EQ|INE572E01012", "PNBHOUSING", "PNB Housing Finance"],
-  ["NSE_EQ|INE417T01026", "POLICYBZR", "PB Fintech"],
-  ["NSE_EQ|INE511C01022", "POONAWALLA", "Poonawalla Fincorp"],
-  ["NSE_EQ|INE752E01010", "POWERGRID", "Power Grid Corporation of India"],
-  ["NSE_EQ|INE0DK501011", "PPLPHARMA", "Piramal Pharma"],
-  ["NSE_EQ|INE811K01011", "PRESTIGE", "Prestige Estates Projects"],
-  ["NSE_EQ|INE976G01028", "RBLBANK", "RBL Bank"],
-  ["NSE_EQ|INE020B01018", "RECLTD", "REC"],
-  ["NSE_EQ|INE415G01027", "RVNL", "Rail Vikas Nigam"],
-  ["NSE_EQ|INE114A01011", "SAIL", "Steel Authority of India"],
-  ["NSE_EQ|INE018E01016", "SBICARD", "SBI Cards and Payment Services"],
-  ["NSE_EQ|INE123W01016", "SBILIFE", "SBI Life Insurance Company"],
-  ["NSE_EQ|INE062A01020", "SBIN", "State Bank of India"],
-  ["NSE_EQ|INE721A01047", "SHRIRAMFIN", "Shriram Finance"],
-  ["NSE_EQ|INE003A01024", "SIEMENS", "Siemens"],
-  ["NSE_EQ|INE073K01018", "SONACOMS", "Sona BLW Precision Forgings"],
-  ["NSE_EQ|INE647A01010", "SRF", "SRF"],
-  ["NSE_EQ|INE044A01036", "SUNPHARMA", "Sun Pharmaceutical Industries"],
-  ["NSE_EQ|INE195A01028", "SUPREMEIND", "Supreme Industries"],
-  ["NSE_EQ|INE398R01022", "SYNGENE", "Syngene International"],
-  ["NSE_EQ|INE092A01019", "TATACHEM", "Tata Chemicals"],
-  ["NSE_EQ|INE151A01013", "TATACOMM", "Tata Communications"],
-  ["NSE_EQ|INE192A01025", "TATACONSUM", "TATA CONSUMER PRODUCTS"],
-  ["NSE_EQ|INE155A01022", "TATAMOTORS", "Tata Motors"],
-  ["NSE_EQ|INE245A01021", "TATAPOWER", "Tata Power Company"],
-  ["NSE_EQ|INE081A01020", "TATASTEEL", "Tata Steel"],
-  ["NSE_EQ|INE142M01025", "TATATECH", "Tata Technologies"],
-  ["NSE_EQ|INE669C01036", "TECHM", "Tech Mahindra"],
-  ["NSE_EQ|INE974X01010", "TIINDIA", "Tube Investments of India"],
-  ["NSE_EQ|INE615H01020", "TITAGARH", "TITAGARH RAIL SYSTEMS"],
-  ["NSE_EQ|INE280A01028", "TITAN", "Titan Company"],
-  ["NSE_EQ|INE685A01028", "TORNTPHARM", "Torrent Pharmaceuticals"],
-  ["NSE_EQ|INE813H01021", "TORNTPOWER", "Torrent Power"],
-  ["NSE_EQ|INE494B01023", "TVSMOTOR", "TVS Motor Company"],
-  ["NSE_EQ|INE692A01016", "UNIONBANK", "Union Bank of India"],
-  ["NSE_EQ|INE854D01024", "UNITDSPR", "United Spirits"],
-  ["NSE_EQ|INE405E01023", "UNOMINDA", "UNO Minda"],
-  ["NSE_EQ|INE628A01036", "UPL", "UPL"],
-  ["NSE_EQ|INE200M01039", "VBL", "Varun Beverages"],
-  ["NSE_EQ|INE205A01025", "VEDL", "Vedanta"],
-  ["NSE_EQ|INE226A01021", "VOLTAS", "Voltas"],
-  ["NSE_EQ|INE075A01022", "WIPRO", "Wipro"],
-  ["NSE_EQ|INE010B01027", "ZYDUSLIFE", "Zydus Lifesciences"]
-];
+  <main id="main" class="flex-grow container mx-auto px-2 md:px-4 py-4 md:py-8">
+    <div class="flex flex-col w-full md:w-auto">
 
-        // UI elements
-        const allStockNameDiv = document.getElementById("allStockName");
-        const showStocksBtn = document.getElementById("showStocksBtn");
-        const closeStocksBtn = document.getElementById("closeStocksBtn");
-        const stockListContainer = document.getElementById("stockListContainer");
-        const fetchBtn = document.getElementById('fetchBtn');
-        const tableBody = document.getElementById('tableBody');
-        const tableHead = document.getElementById('tableHead');
-        const loadingDiv = document.getElementById('loading');
-        const noDataMessageDiv = document.getElementById('noDataMessage');
-        const donateBtn = document.getElementById('donateBtn');
-        const donateBtnModal = document.getElementById('donateBtnModal');
-        const upiModal = document.getElementById('upiModal');
-        const upiModalContent = upiModal.querySelector("div");
-        const closeUpiModalBtn = document.getElementById('closeUpiModalBtn');
+      <button id="showStocksBtn"
+        class="mt-4 md:mt-0 px-8 py-2 bg-slate-700 text-white rounded-xl font-semibold hover:bg-slate-600 transition-all duration-300 flex items-center justify-center gap-2 w-full md:w-64 shadow-md hover:shadow-lg transform hover:scale-105 text-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+          <path
+            d="M2 5a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V5zM4 9a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2v-6a2 2 0 00-2-2H4z" />
+        </svg>
+        Show All Stocks
+      </button>
+    </div>
+    <h1 class="text-3xl md:text-5xl font-extrabold text-center text-blue-400 mb-4 md:mb-6 drop-shadow-lg">
+      Stock Screener
+    </h1>
 
-        // Populate the hidden stock list on page load
-        function populateAllStocks() {
-            stockListContainer.innerHTML = '';
-            for (let stock of stockList) {
-                const stockName = stock[2];
-                const item = document.createElement("div");
-                item.className = "bg-slate-700 text-slate-300 p-2 rounded-xl shadow-sm hover:bg-slate-600 transition-colors cursor-pointer text-sm";
-                item.textContent = stockName;
-                stockListContainer.appendChild(item);
-            }
+    <p class="text-sm md:text-lg text-center text-slate-400 mb-6 md:mb-8">
+      Find potential investment opportunities with a custom stock filter.
+    </p>
+
+    <div
+      class="bg-slate-800 rounded-2xl shadow-2xl p-4 md:p-6 mb-4 flex flex-col md:flex-row items-end justify-evenly gap-3 transition-all duration-300">
+      <div class="flex flex-col w-full">
+        <label for="down" class="text-xs font-medium mb-1 text-slate-400">Down % from Top:</label>
+        <input type="number" id="down" value="20" min="0" max="100" step="1"
+          class="bg-slate-700 text-white rounded-xl p-2 w-full md:w-28 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+      </div>
+      <div class="flex flex-col w-full">
+        <label for="sma" class="text-xs font-medium mb-1 text-slate-400">SMA Period:</label>
+        <input type="number" id="sma" value="200" min="1" step="1"
+          class="bg-slate-700 text-white rounded-xl p-2 w-full md:w-28 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+      </div>
+      <div class="flex flex-col w-full md:w-auto">
+        <label for="fetchBtn" class="text-sm font-medium mb-1 text-slate-400 opacity-0 select-none">Submit
+          Button</label>
+        <button id="fetchBtn"
+          class="px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all duration-300 shadow-md hover:shadow-lg w-full md:w-auto transform hover:scale-105 text-sm">
+          Submit
+        </button>
+      </div>
+    </div>
+
+    <div id="allStockName"
+      class="hidden fixed inset-0 z-50 bg-slate-900 bg-opacity-95 p-6 overflow-y-auto transition-all duration-300">
+      <div class="ticker-tape font-mono text-xs md:text-sm text-yellow-300 mb-4 md:mb-6">
+        <div>
+          <button id="donateBtnModal" class="mx-4 md:mx-6 hover:underline transition-all">
+            <span class="text-orange-400">💰</span> Donate via UPI
+          </button>
+          <a href="https://zerodha.com/open-account?c=XCK853" class="mx-4 md:mx-6 hover:underline transition-all">
+            <img src="https://placehold.co/25x25/FC3E14/FFFFFF?text=K" alt="Zerodha Logo"
+              class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
+            <span>Open Demat Account <b><i class="text-orange-600">Zerodha-Kite</i></b></span>
+          </a>
+          <a href="https://join.dhan.co/?invite=MJXCH55865" class="mx-4 md:mx-6 hover:underline transition-all">
+            <img src="https://placehold.co/25x25/22c55e/FFFFFF?text=D" alt="Dhan Logo"
+              class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
+            <span>Open Demat Account <b><i class="text-green-500">Dhan</i></b></span>
+          </a>
+          <a href="https://upstox.onelink.me/0H1s/3SCVP2" class="mx-4 md:mx-6 hover:underline transition-all">
+            <img src="https://placehold.co/25x25/a855f7/FFFFFF?text=U" alt="Upstox Logo"
+              class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
+            <span>Open Demat Account <b><i class="text-fuchsia-500">Upstox</i></b> </span>
+          </a>
+        </div>
+      </div>
+      <div class="flex justify-between items-center mb-4 md:mb-6">
+        <h2 class="text-2xl md:text-3xl font-bold text-blue-400">All Available Stocks</h2>
+        <button id="closeStocksBtn" class="text-white hover:text-red-500 transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div id="stockListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+      </div>
+    </div>
+
+    <div class="w-full text-center mb-6 md:mb-8">
+      <p class="text-xs md:text-sm italic text-slate-400">
+        <span class="font-bold text-red-400 mr-1">Disclaimer:</span> Data shown is for informational purposes
+        only and
+        does not constitute financial advice.
+      </p>
+    </div>
+
+    <div class="table-container bg-slate-800 rounded-xl shadow-xl">
+      <table id="table" class="w-full">
+        <thead id="tableHead" class="text-slate-400 uppercase text-xs table-head-custom">
+        </thead>
+        <tbody id="tableBody" class="text-sm">
+        </tbody>
+      </table>
+      <div id="noDataMessage" class="hidden p-4 text-center text-slate-400 italic text-sm">
+        No stocks found matching the criteria.
+      </div>
+      <div id="loading" class="hidden p-4 text-center text-blue-400 animate-pulse text-sm">
+        Fetching data... please wait.
+      </div>
+    </div>
+  </main>
+
+  <footer id="footer" class="text-center p-4 text-xs md:text-sm text-slate-500 mt-4 md:mt-8 border-t border-slate-700">
+    <p><span class="font-bold text-red-400 mr-1">Disclaimer:</span> The following data is provided for informational
+      and
+      research purposes only. It represents historical and current stock price information and does not constitute
+      financial advice or a recommendation to buy, sell, or hold any stock. Please consult with a licensed
+      financial
+      advisor before making investment decisions. The website owner is not responsible for any financial losses
+      arising
+      from the use of this information.</p>
+  </footer>
+
+  <div id="upiModal"
+    class="hidden modal fixed inset-0 z-[100] flex items-center justify-center p-4 transition-opacity duration-300">
+    <div
+      class="bg-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-sm relative transform scale-95 opacity-0 transition-all duration-300">
+      <button id="closeUpiModalBtn" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <h3 class="text-xl md:text-2xl font-bold text-center text-blue-400 mb-4 md:mb-6">Scan to Donate</h3>
+      <div class="text-center">
+        <img id="upiQrCode" src="UPI.jpg" alt="UPI QR Code"
+          class="rounded-lg shadow-lg mx-auto mb-4 w-48 h-48 md:w-auto md:h-auto">
+        <p class="text-slate-400 text-xs md:text-sm">Thank you for your support!</p>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <script>
+    const stockList =
+      [["Jaiprakash Power Ventures", "JPPOWER", "INE351F01018"],
+      ["Yes Bank", "YESBANK", "INE528G01035"],
+      ["IRB Infrastructure Developers", "IRB", "INE821I01022"],
+      ["Sagility India", "SAGILITY", "INE0W2G01015"],
+      ["Motherson Sumi Wiring", "MSUMI", "INE0FS801015"],
+      ["Bank of Maharashtra", "MAHABANK", "INE457A01014"],
+      ["Suzlon Energy", "SUZLON", "INE040H01021"],
+      ["IDFC First Bank", "IDFCFIRSTB", "INE092T01019"],
+      ["HFCL", "HFCL", "INE548A01028"],
+      ["NMDC", "NMDC", "INE584A01023"],
+      ["Niva Bupa Health Insurance Company", "NIVABUPA", "INE995S01015"],
+      ["NHPC", "NHPC", "INE848E01016"],
+      ["SJVN", "SJVN", "INE002L01015"],
+      ["NTPC Green Energy", "NTPCGREEN", "INE0ONG01011"],
+      ["Jammu & Kashmir Bank", "J&KBANK", "INE168A01041"],
+      ["SBFC Finance", "SBFC", "INE423Y01016"],
+      ["Samvardhana Motherson International", "MOTHERSON", "INE775A01035"],
+      ["NBCC", "NBCC", "INE095N01031"],
+      ["Punjab National Bank", "PNB", "INE160A01022"],
+      ["Zee Entertainment", "ZEEL", "INE256A01028"],
+      ["Canara Bank", "CANBK", "INE476A01022"],
+      ["Bank of India", "BANKINDIA", "INE084A01016"],
+      ["Welspun Living", "WELSPUNLIV", "INE192B01031"],
+      ["Mangalore Refinery & Petroleum", "MRPL", "INE103A01014"],
+      ["Steel Authority of India", "SAIL", "INE114A01011"],
+      ["Union Bank of India", "UNIONBANK", "INE692A01016"],
+      ["Ashok Leyland", "ASHOKLEY", "INE208A01029"],
+      ["Sammaan Capital", "SAMMAANCAP", "INE148I01020"],
+      ["Indian Oil Corporation", "IOC", "INE242A01010"],
+      ["Indian Energy Exchange", "IEX", "INE022Q01020"],
+      ["Inox Wind", "INOXWIND", "INE066P01011"],
+      ["Vishal Mega Mart", "VMM", "INE01EA01019"],
+      ["Gujarat Pipavav Port", "GPPL", "INE517F01014"],
+      ["IREDA", "IREDA", "INE202E01016"],
+      ["Bandhan Bank", "BANDHANBNK", "INE545U01014"],
+      ["CESC", "CESC", "INE486A01021"],
+      ["Tata Steel", "TATASTEEL", "INE081A01020"],
+      ["JM Financial", "JMFINANCIL", "INE780C01023"],
+      ["Lemon Tree Hotels", "LEMONTREE", "INE970X01018"],
+      ["Devyani International", "DEVYANI", "INE872J01023"],
+      ["GAIL", "GAIL", "INE129A01019"],
+      ["Ircon International", "IRCON", "INE962Y01021"],
+      ["Capri Global Capital", "CGCL", "INE180C01042"],
+      ["Federal Bank", "FEDERALBNK", "INE171A01029"],
+      ["The New India Assurance Company", "NIACL", "INE470Y01017"],
+      ["Castrol", "CASTROLIND", "INE172A01027"],
+      ["KNR Constructions", "KNRCON", "INE634I01029"],
+      ["Engineers India", "ENGINERSIN", "INE510A01028"],
+      ["Piramal Pharma", "PPLPHARMA", "INE0DK501011"],
+      ["NALCO", "NATIONALUM", "INE139A01034"],
+      ["City Union Bank", "CUB", "INE491A01021"],
+      ["Jindal SAW", "JINDALSAW", "INE324A01032"],
+      ["Indraprastha Gas", "IGL", "INE203G01027"],
+      ["Finolex Industries", "FINPIPE", "INE183A01024"],
+      ["NCC", "NCC", "INE868B01028"],
+      ["Shipping Corporation of India", "SCI", "INE109A01011"],
+      ["HUDCO", "HUDCO", "INE031A01017"],
+      ["Oil & Natural Gas Corporation", "ONGC", "INE213A01029"],
+      ["Bharat Heavy Electricals", "BHEL", "INE257A01026"],
+      ["L&T Finance", "LTF", "INE498L01015"],
+      ["Kansai Nerolac Paints", "KANSINER", "INE531A01024"],
+      ["Bank of Baroda", "BANKBARODA", "INE028A01039"],
+      ["Wipro", "WIPRO", "INE075A01022"],
+      ["AWL Agri Business", "AWL", "INE699H01024"],
+      ["NLC India", "NLCINDIA", "INE589A01014"],
+      ["Godawari Power & ISPAT", "GPIL", "INE177H01039"],
+      ["Sterling & Wilson Renewable Energy", "SWSOLAR", "INE00M201021"],
+      ["RBL Bank", "RBLBANK", "INE976G01028"],
+      ["RITES", "RITES", "INE320J01015"],
+      ["Petronet LNG", "PETRONET", "INE347G01014"],
+      ["Hindustan Copper", "HINDCOPPER", "INE531E01026"],
+      ["Campus Activewear", "CAMPUS", "INE278Y01022"],
+      ["Power Grid Corporation of India", "POWERGRID", "INE752E01010"],
+      ["Manappuram Finance", "MANAPPURAM", "INE522D01027"],
+      ["Aditya Birla Capital", "ABCAPITAL", "INE674K01013"],
+      ["M&M Financial Services", "M&MFIN", "INE774D01024"],
+      ["ACME Solar Holdings", "ACMESOLAR", "INE622W01025"],
+      ["Redington", "REDINGTON", "INE891D01026"],
+      ["Mamaearth", "HONASA", "INE0J5401028"],
+      ["PNC Infratech", "PNCINFRA", "INE195J01029"],
+      ["Crompton Greaves", "CROMPTON", "INE299U01018"],
+      ["Gujarat State Petronet", "GSPL", "INE246F01010"],
+      ["Jio Financial Services", "JIOFIN", "INE758E01017"],
+      ["Sapphire Foods", "SAPPHIRE", "INE806T01020"],
+      ["Jyothy Laboratories", "JYOTHYLAB", "INE668F01031"],
+      ["Bharat Petroleum", "BPCL", "INE029A01011"],
+      ["Aptus Value Housing Finance", "APTUS", "INE852O01025"],
+      ["JSW Infrastructure", "JSWINFRA", "INE880J01026"],
+      ["Eternal", "ETERNAL", "INE758T01015"],
+      ["NTPC", "NTPC", "INE733E01010"],
+      ["Jupiter Wagons", "JWL", "INE209L01016"],
+      ["Go Digit General Insurance", "GODIGIT", "INE03JT01014"],
+      ["Indus Towers", "INDUSTOWER", "INE121J01017"],
+      ["Triveni Enineering & Industries", "TRIVENI", "INE256C01024"],
+      ["Rail Vikas Nigam", "RVNL", "INE415G01027"],
+      ["GIC of India", "GICRE", "INE481Y01014"],
+      ["BLS International Services", "BLS", "INE153T01027"],
+      ["Biocon", "BIOCON", "INE376G01013"],
+      ["International Gemmological Institute", "IGIL", "INE0Q9301021"],
+      ["V-Guard Industries", "VGUARD", "INE951I01027"],
+      ["JK Tyre & Industries", "JKTYRE", "INE573A01042"],
+      ["Firstsource Solutions", "FSL", "INE684F01012"],
+      ["Birlasoft", "BSOFT", "INE836A01035"],
+      ["REC", "RECLTD", "INE020B01018"],
+      ["Praj Industries", "PRAJIND", "INE074A01025"],
+      ["EIH Hotels", "EIHOTEL", "INE230A01023"],
+      ["Aarti Industries", "AARTIIND", "INE769A01020"],
+      ["Sonata Software", "SONATSOFTW", "INE269A01021"],
+      ["Coal India", "COALINDIA", "INE522F01014"],
+      ["Tata Power", "TATAPOWER", "INE245A01021"],
+      ["Oil India", "OIL", "INE274J01014"],
+      ["Bharat Electronics", "BEL", "INE263A01024"],
+      ["Power Finance Corporation", "PFC", "INE134E01011"],
+      ["ITC", "ITC", "INE154A01025"],
+      ["Hindustan Petroleum", "HINDPETRO", "INE094A01015"],
+      ["PCBL Chemical", "PCBL", "INE602A01031"],
+      ["Exide Industries", "EXIDEIND", "INE302A01020"],
+      ["Latent View Analytics", "LATENTVIEW", "INE0I7C01011"],
+      ["Vardhman Textiles", "VTL", "INE825A01020"],
+      ["Usha Martin", "USHAMART", "INE228A01035"],
+      ["Gujarat Gas", "GUJGASLTD", "INE844O01030"],
+      ["Sona BLW Precision Forgings", "SONACOMS", "INE073K01018"],
+      ["Star Health Insurance", "STARHEALTH", "INE575P01011"],
+      ["Hindustan Zinc", "HINDZINC", "INE267A01025"],
+      ["IIFL Finance", "IIFL", "INE530B01024"],
+      ["Vedanta", "VEDL", "INE205A01025"],
+      ["Afcons Infrastructure", "AFCONS", "INE101I01011"],
+      ["Himadri Speciality Chemical", "HSCL", "INE019C01026"],
+      ["LT Foods", "LTFOODS", "INE818H01020"],
+      ["Varun Beverages", "VBL", "INE200M01039"],
+      ["Akums Drugs & Pharma", "AKUMS", "INE09XN01023"],
+      ["Delhivery", "DELHIVERY", "INE148O01028"],
+      ["Apollo Tyres", "APOLLOTYRE", "INE438A01022"],
+      ["RHI Magnesita", "RHIM", "INE743M01012"],
+      ["Swan Corp", "SWANCORP", "INE665A01038"],
+      ["Saregama India", "SAREGAMA", "INE979A01025"],
+      ["Poonawalla Fincorp", "POONAWALLA", "INE511C01022"],
+      ["Elgi Equipments", "ELGIEQUIP", "INE285A01027"],
+      ["Balrampur Chini Mills", "BALRAMCHIN", "INE119A01028"],
+      ["Kalyan Jewellers", "KALYANKJIL", "INE303R01014"],
+      ["Gujarat Narmada Valley Fert & Chem", "GNFC", "INE113A01013"],
+      ["HEG", "HEG", "INE545A01024"],
+      ["Berger Paints", "BERGEPAINT", "INE463A01038"],
+      ["Transformers & Rectifiers", "TARIL", "INE763I01026"],
+      ["Dabur India", "DABUR", "INE016A01026"],
+      ["Triveni Turbines", "TRITURBINE", "INE152M01016"],
+      ["Five Star Business Finance", "FIVESTAR", "INE128S01021"],
+      ["Aadhar Housing Finance", "AADHARHFC", "INE883F01010"],
+      ["Chambal Fertilisers & Chemicals", "CHAMBLFERT", "INE085A01013"],
+      ["JSW Energy", "JSWENERGY", "INE121E01018"],
+      ["Minda Corporation", "MINDACORP", "INE842C01021"],
+      ["Container Corporation of India", "CONCOR", "INE111A01025"],
+      ["Sun TV Network", "SUNTV", "INE424H01027"],
+      ["Ramkrishna Forgings", "RKFORGE", "INE399G01023"],
+      ["Graphite", "GRAPHITE", "INE371A01025"],
+      ["PG Electroplast", "PGEL", "INE457L01029"],
+      ["Sarda Energy & Minerals", "SARDAEN", "INE385C01021"],
+      ["Emami", "EMAMILTD", "INE548C01032"],
+      ["Happiest Minds Technologies", "HAPPSTMNDS", "INE419U01012"],
+      ["Ambuja Cements", "AMBUJACEM", "INE079A01024"],
+      ["Indegene", "INDGN", "INE065X01017"],
+      ["LIC Housing Finance", "LICHSGFIN", "INE115A01026"],
+      ["Sumitomo Chemical", "SUMICHEM", "INE258G01013"],
+      ["ICICI Prudential Life Insurance", "ICICIPRULI", "INE726G01019"],
+      ["Patanjali Foods", "PATANJALI", "INE619A01035"],
+      ["Tejas Networks", "TEJASNET", "INE010J01012"],
+      ["Elecon Engineering Company", "ELECON", "INE205B01031"],
+      ["Jubilant FoodWorks", "JUBLFOOD", "INE797F01020"],
+      ["Maharashtra Seamless", "MAHSEAMLES", "INE271B01025"],
+      ["Shriram Finance", "SHRIRAMFIN", "INE721A01047"],
+      ["Anant Raj", "ANANTRAJ", "INE242C01024"],
+      ["Aster DM Healthcare", "ASTERDM", "INE914M01019"],
+      ["Adani Total Gas", "ATGL", "INE399L01023"],
+      ["Syngene International", "SYNGENE", "INE398R01022"],
+      ["Jubilant Ingrevia", "JUBLINGREA", "INE0BY001018"],
+      ["UPL", "UPL", "INE628A01036"],
+      ["Indian Bank", "INDIANB", "INE562A01011"],
+      ["Tata Motors", "TATAMOTORS", "INE155A01022"],
+      ["Adani Power", "ADANIPOWER", "INE814H01011"],
+      ["Vedant Fashions", "MANYAVAR", "INE825V01034"],
+      ["AU Small Finance Bank", "AUBANK", "INE949L01017"],
+      ["Marico", "MARICO", "INE196A01026"],
+      ["Tata Technologies", "TATATECH", "INE142M01025"],
+      ["Westlife Foodworld", "WESTLIFE", "INE274F01020"],
+      ["Godrej Agrovet", "GODREJAGRO", "INE850D01014"],
+      ["IRCTC", "IRCTC", "INE335Y01020"],
+      ["Chennai Petroleum Corporation", "CHENNPETRO", "INE178A01016"],
+      ["Hindalco Industries", "HINDALCO", "INE038A01020"],
+      ["Indusind Bank", "INDUSINDBK", "INE095A01012"],
+      ["Krishna Institute of Medical Sciences", "KIMS", "INE967H01025"],
+      ["Can Fin Homes", "CANFINHOME", "INE477A01020"],
+      ["Indian Hotels Company", "INDHOTEL", "INE053A01029"],
+      ["DLF", "DLF", "INE271C01023"],
+      ["Jindal Stainless", "JSL", "INE220G01021"],
+      ["CG Power & Industrial Solutions", "CGPOWER", "INE067A01029"],
+      ["HDFC Life Insurance", "HDFCLIFE", "INE795G01014"],
+      ["Bikaji Foods International", "BIKAJI", "INE00E101023"],
+      ["Aegis Logistics", "AEGISLOG", "INE208C01025"],
+      ["Century Plyboards", "CENTURYPLY", "INE348B01021"],
+      ["Aditya Birla Sun Life AMC", "ABSLAMC", "INE404A01024"],
+      ["Syrma SGS", "SYRMA", "INE0DYJ01015"],
+      ["Finolex Cables", "FINCABLES", "INE235A01022"],
+      ["Nippon Life India AMC", "NAM-INDIA", "INE298J01013"],
+      ["Just Dial", "JUSTDIAL", "INE599M01018"],
+      ["Route Mobile", "ROUTE", "INE450U01017"],
+      ["Zensar Technologies", "ZENSARTECH", "INE520A01027"],
+      ["State Bank of India", "SBIN", "INE062A01020"],
+      ["KEC International", "KEC", "INE389H01022"],
+      ["PNB Housing Finance", "PNBHOUSING", "INE572E01012"],
+      ["SBI Cards", "SBICARD", "INE018E01016"],
+      ["Adani Energy Solutions", "ADANIENSOL", "INE931S01010"],
+      ["Asahi India Glass", "ASAHIINDIA", "INE439A01020"],
+      ["Natco Pharma", "NATCOPHARM", "INE987B01026"],
+      ["CCL Products", "CCL", "INE421D01022"],
+      ["Schneider Electric Infra", "POWERINDIA", "INE07Y701011"],
+      ["Welspun Corp", "WELCORP", "INE191B01025"],
+      ["Shyam Metalics & Energy", "SHYAMMETL", "INE810G01011"],
+      ["Cohance Lifesciences", "COHANCE", "INE03QK01018"],
+      ["Sai Life Sciences", "SAILIFE", "INE570L01029"],
+      ["Newgen Software Technologies", "NEWGEN", "INE619B01017"],
+      ["Laurus Labs", "LAURUSLABS", "INE947Q01028"],
+      ["Brigade Enterprises", "BRIGADE", "INE791I01019"],
+      ["Motilal Oswal Financial Services", "MOTILALOFS", "INE338I01027"],
+      ["Jyoti CNC Automation", "JYOTICNC", "INE980O01024"],
+      ["Fortis Healthcare", "FORTIS", "INE061F01013"],
+      ["Titagarh Rail Systems", "TITAGARH", "INE615H01020"],
+      ["Carborundum Universal", "CARBORUNIV", "INE120A01034"],
+      ["Alembic Pharmaceuticals", "APLLTD", "INE901L01018"],
+      ["Kirloskar Oil Engines", "KIRLOSENG", "INE146L01010"],
+      ["HDFC Bank", "HDFCBANK", "INE040A01034"],
+      ["Bajaj Finance", "BAJFINANCE", "INE296A01032"],
+      ["Tata Chemicals", "TATACHEM", "INE092A01019"],
+      ["Amara Raja Energy & Mobility", "ARE&M", "INE885A01032"],
+      ["Chalet Hotels", "CHALET", "INE427F01016"],
+      ["Adani Green Energy", "ADANIGREEN", "INE364U01010"],
+      ["Zydus Life Science", "ZYDUSLIFE", "INE010B01027"],
+      ["Sundram Fasteners", "SUNDRMFAST", "INE387A01021"],
+      ["Jindal Steel", "JINDALSTEL", "INE749A01030"],
+      ["Alivus Life Sciences", "ALIVUS", "INE03Q201024"],
+      ["Ramco Cements", "RAMCOCEM", "INE331A01037"],
+      ["Great Eastern Shipping Company", "GESHIP", "INE017A01032"],
+      ["Vijaya Diagnostic Centre", "VIJAYA", "INE043W01024"],
+      ["Intellect Design Arena", "INTELLECT", "INE306R01017"],
+      ["EID Parry", "EIDPARRY", "INE126A01031"],
+      ["360 One WAM", "360ONE", "INE466L01038"],
+      ["Jubilant Pharmova", "JUBLPHARMA", "INE700A01033"],
+      ["Signatureglobal", "SIGNATURE", "INE903U01023"],
+      ["Aurobindo Pharma", "AUROPHARMA", "INE406A01037"],
+      ["Piramal Enterprises", "PEL", "INE140A01024"],
+      ["JSW Steel", "JSWSTEEL", "INE019A01038"],
+      ["Tata Consumer Products", "TATACONSUM", "INE192A01025"],
+      ["KPR Mill", "KPRMILL", "INE930H01031"],
+      ["Axis Bank", "AXISBANK", "INE238A01034"],
+      ["KFin Technologies", "KFINTECH", "INE138Y01010"],
+      ["Action Construction Equipment", "ACE", "INE731H01025"],
+      ["Max Healthcare Institute", "MAXHEALTH", "INE027H01010"],
+      ["Godrej Industries", "GODREJIND", "INE233A01035"],
+      ["Clean Science & Technology", "CLEAN", "INE227W01023"],
+      ["Nestle", "NESTLEIND", "INE239A01024"],
+      ["Kajaria Ceramics", "KAJARIACER", "INE217B01036"],
+      ["Lodha Developers", "LODHA", "INE670K01029"],
+      ["INOX India", "INOXINDIA", "INE616N01034"],
+      ["Bata", "BATAINDIA", "INE176A01028"],
+      ["Godrej Consumer Products", "GODREJCP", "INE102D01028"],
+      ["Cyient", "CYIENT", "INE136B01020"],
+      ["DCM Shriram Consolidated", "DCMSHRIRAM", "INE499A01024"],
+      ["RR Kabel", "RRKABEL", "INE777K01022"],
+      ["Torrent Power", "TORNTPOWER", "INE813H01021"],
+      ["Home First Finance Company", "HOMEFIRST", "INE481N01025"],
+      ["Kalpataru Projects International", "KPIL", "INE220B01022"],
+      ["Raymond Lifestyle", "RAYMONDLSL", "INE02ID01020"],
+      ["Bharat Forge", "BHARATFORG", "INE465A01025"],
+      ["KPIT Technologies", "KPITTECH", "INE04I401011"],
+      ["UNO Minda", "UNOMINDA", "INE405E01023"],
+      ["Dr Reddys Laboratories", "DRREDDY", "INE089A01031"],
+      ["United Spirits", "UNITDSPR", "INE854D01024"],
+      ["Lloyds Metals & Energy", "LLOYDSME", "INE281B01032"],
+      ["Whirlpool", "WHIRLPOOL", "INE716A01013"],
+      ["Emcure Pharmaceuticals", "EMCURE", "INE168P01015"],
+      ["Mahanagar Gas", "MGL", "INE002S01010"],
+      ["Global Health", "MEDANTA", "INE474Q01031"],
+      ["UTI AMC", "UTIAMC", "INE094J01016"],
+      ["Credit Access Grameen", "CREDITACC", "INE741K01010"],
+      ["Info Edge", "NAUKRI", "INE663F01032"],
+      ["ICICI Bank", "ICICIBANK", "INE090A01021"],
+      ["Reliance Industries", "RELIANCE", "INE002A01018"],
+      ["Techno Electric & Engineering", "TECHNOE", "INE285K01026"],
+      ["Rainbow Childrens Medicare", "RAINBOW", "INE961O01016"],
+      ["Voltas", "VOLTAS", "INE226A01021"],
+      ["Adani Ports & SEZ", "ADANIPORTS", "INE742F01042"],
+      ["IPCA Laboratories", "IPCALAB", "INE571A01038"],
+      ["Astral", "ASTRAL", "INE006I01046"],
+      ["Deepak Fertilisers & Petrochemicals", "DEEPAKFERT", "INE501A01019"],
+      ["HCL Technologies", "HCLTECH", "INE860A01027"],
+      ["Infosys", "INFY", "INE009A01021"],
+      ["Tech Mahindra", "TECHM", "INE669C01036"],
+      ["Inventurus Knowledge Solutions", "IKS", "INE115Q01022"],
+      ["Max Financial Services", "MFSL", "INE180A01020"],
+      ["Cipla", "CIPLA", "INE059A01026"],
+      ["Havells", "HAVELLS", "INE176B01034"],
+      ["Cholamandalam Investment", "CHOLAFIN", "INE121A01024"],
+      ["Sobha", "SOBHA", "INE671H01015"],
+      ["Zen Technologies", "ZENTEC", "INE251B01027"],
+      ["Prestige Estates Projects", "PRESTIGE", "INE811K01011"],
+      ["Phoenix Mills", "PHOENIXLTD", "INE211B01039"],
+      ["TBO Tek", "TBOTEK", "INE673O01025"],
+      ["Bharat Dynamics", "BDL", "INE171Z01026"],
+      ["Eris Lifesciences", "ERIS", "INE406M01024"],
+      ["CE Info Systems", "MAPMYINDIA", "INE0BV301023"],
+      ["Sun Pharmaceutical", "SUNPHARMA", "INE044A01036"],
+      ["Gravita India", "GRAVITA", "INE024L01027"],
+      ["Oberoi Realty", "OBEROIRLTY", "INE093I01010"],
+      ["Aavas Financiers", "AAVAS", "INE216P01012"],
+      ["Tata Communications", "TATACOMM", "INE151A01013"],
+      ["APL Apollo Tubes", "APLAPOLLO", "INE702C01027"],
+      ["Concord Biotech", "CONCORDBIO", "INE338H01029"],
+      ["J B Chemicals and Pharmaceuticals", "JBCHEPHARM", "INE572A01036"],
+      ["Bharti Hexacom", "BHARTIHEXA", "INE343G01021"],
+      ["Narayana Hrudayalaya", "NH", "INE410P01011"],
+      ["Coforge", "COFORGE", "INE591G01025"],
+      ["United Breweries", "UBL", "INE686F01025"],
+      ["Deepak Nitrite", "DEEPAKNTR", "INE288B01029"],
+      ["PB FinTech", "POLICYBZR", "INE417T01026"],
+      ["SBI Life Insurance", "SBILIFE", "INE123W01016"],
+      ["ICICI Lombard General Insurance", "ICICIGI", "INE765G01017"],
+      ["ACC", "ACC", "INE012A01025"],
+      ["Aditya Birla Real Estate", "ABREL", "INE055A01016"],
+      ["Cochin Shipyard", "COCHINSHIP", "INE704P01025"],
+      ["Bombay Burmah Trading", "BBTC", "INE050A01025"],
+      ["Bharti Airtel", "BHARTIARTL", "INE397D01024"],
+      ["Blue Star", "BLUESTARCO", "INE472A01039"],
+      ["Poly Medicure", "POLYMED", "INE205C01021"],
+      ["Cholamandalam Financial Holdings", "CHOLAHLDNG", "INE149A01033"],
+      ["Gland Pharma", "GLAND", "INE068V01023"],
+      ["Kotak Bank", "KOTAKBANK", "INE237A01028"],
+      ["Kirloskar Brothers", "KIRLOSBROS", "INE732A01036"],
+      ["Lupin", "LUPIN", "INE326A01037"],
+      ["Bajaj Finserv", "BAJAJFINSV", "INE918I01026"],
+      ["Alkyl Amines Chemicals", "ALKYLAMINE", "INE150B01039"],
+      ["Glenmark Pharmaceuticals", "GLENMARK", "INE935A01035"],
+      ["Metropolis Healthcare", "METROPOLIS", "INE112L01020"],
+      ["Affle 3i", "AFFLE", "INE00WC01027"],
+      ["Godrej Properties", "GODREJPROP", "INE484J01027"],
+      ["Coromandel International", "COROMANDEL", "INE169A01031"],
+      ["Angel One", "ANGELONE", "INE732I01013"],
+      ["Colgate Palmolive", "COLPAL", "INE259A01022"],
+      ["Caplin Point Laboratories", "CAPLIPOINT", "INE475E01026"],
+      ["Dalmia Bharat", "DALBHARAT", "INE00R701025"],
+      ["Mastek", "MASTEK", "INE759A01021"],
+      ["IndiaMART InterMesh", "INDIAMART", "INE933S01016"],
+      ["Asian Paints", "ASIANPAINT", "INE021A01026"],
+      ["Balkrishna Industries", "BALKRISIND", "INE787D01026"],
+      ["Adani Enterprises", "ADANIENT", "INE423A01024"],
+      ["Hindustan Unilever", "HINDUNILVR", "INE030A01027"],
+      ["Garden Reach Shipbuilders", "GRSE", "INE382Z01011"],
+      ["DOMS Industries", "DOMS", "INE321T01012"],
+      ["Mankind Pharma", "MANKIND", "INE634S01028"],
+      ["GlaxoSmithKline Pharmaceuticals", "GLAXO", "INE159A01016"],
+      ["Hyundai Motor India", "HYUNDAI", "INE0V6F01027"],
+      ["Data Patterns", "DATAPATTNS", "INE0IX101010"],
+      ["Grasim Industries", "GRASIM", "INE047A01021"],
+      ["Endurance Technologies", "ENDURANCE", "INE913H01037"],
+      ["Muthoot Finance", "MUTHOOTFIN", "INE414G01012"],
+      ["SRF", "SRF", "INE647A01010"],
+      ["Mazagon Dock Shipbuilders", "MAZDOCK", "INE249Z01020"],
+      ["Mphasis", "MPHASIS", "INE356A01018"],
+      ["Anand Rathi Wealth", "ANANDRATHI", "INE463V01026"],
+      ["Timken", "TIMKEN", "INE325A01013"],
+      ["Pidilite Industries", "PIDILITIND", "INE318A01026"],
+      ["Radico Khaitan", "RADICO", "INE944F01028"],
+      ["GE Vernova T&D", "GVT&D", "INE200A01026"],
+      ["AIA Engineering", "AIAENG", "INE212H01026"],
+      ["Tata Consultancy Services", "TCS", "INE467B01029"],
+      ["Netweb Technologies", "NETWEB", "INE0NT901020"],
+      ["Thermax", "THERMAX", "INE152A01029"],
+      ["Siemens", "SIEMENS", "INE003A01024"],
+      ["Tube Investment", "TIINDIA", "INE974X01010"],
+      ["CEAT", "CEATLTD", "INE482A01020"],
+      ["Titan", "TITAN", "INE280A01028"],
+      ["Dr. Lal Path Labs", "LALPATHLAB", "INE600L01024"],
+      ["Godfrey Phillips", "GODFRYPHLP", "INE260B01028"],
+      ["Waaree Energies", "WAAREEENER", "INE377N01017"],
+      ["TVS Motors", "TVSMOTOR", "INE494B01023"],
+      ["Mahindra & Mahindra", "M&M", "INE101A01026"],
+      ["Torrent Pharmaceuticals", "TORNTPHARM", "INE685A01028"],
+      ["Larsen & Toubro", "LT", "INE018A01030"],
+      ["Escorts Kubota", "ESCORTS", "INE042A01014"],
+      ["PI Industries", "PIIND", "INE603J01030"],
+      ["Gujarat Fluorochemicals", "FLUOROCHEM", "INE09N301011"],
+      ["Cummins", "CUMMINSIND", "INE298A01020"],
+      ["Computer Age Management Services", "CAMS", "INE596I01012"],
+      ["Schaeffler India", "SCHAEFFLER", "INE513A01022"],
+      ["KEI Industries", "KEI", "INE878B01027"],
+      ["eClerx Services", "ECLERX", "INE738I01010"],
+      ["L&T Technology Services", "LTTS", "INE010V01017"],
+      ["BEML", "BEML", "INE258A01016"],
+      ["Supreme Industries", "SUPREMEIND", "INE195A01028"],
+      ["BASF", "BASF", "INE373A01013"],
+      ["Avenue Supermarts DMart", "DMART", "INE192R01011"],
+      ["Navin Fluorine International", "NAVINFLUOR", "INE048G01026"],
+      ["SKF India", "SKFINDIA", "INE640A01023"],
+      ["Hindustan Aeronautics", "HAL", "INE066F01020"],
+      ["CRISIL", "CRISIL", "INE007A01025"],
+      ["Trent", "TRENT", "INE849A01020"],
+      ["Pfizer", "PFIZER", "INE182A01018"],
+      ["Bayer Crop Science", "BAYERCROP", "INE462A01022"],
+      ["Hero Motocorp", "HEROMOTOCO", "INE158A01026"],
+      ["ABB", "ABB", "INE117A01022"],
+      ["Persistent Systems", "PERSISTENT", "INE262H01021"],
+      ["LTI Mindtree", "LTIM", "INE214T01019"],
+      ["Alkem Laboratories", "ALKEM", "INE540L01014"],
+      ["Interglobe Aviation", "INDIGO", "INE646L01027"],
+      ["Tata Elxsi", "TATAELXSI", "INE670A01012"],
+      ["Blue Dart Express", "BLUEDART", "INE233B01017"],
+      ["HDFC AMC", "HDFCAMC", "INE127D01025"],
+      ["Britannia Industries", "BRITANNIA", "INE216A01030"],
+      ["Divis Laboratories", "DIVISLAB", "INE361B01024"],
+      ["Cera Sanitaryware", "CERA", "INE739E01017"],
+      ["Linde", "LINDEINDIA", "INE473A01011"],
+      ["ATUL", "ATUL", "INE100A01010"],
+      ["Nuvama Wealth Management", "NUVAMA", "INE531F01015"],
+      ["Craftsman Automation", "CRAFTSMAN", "INE00LO01017"],
+      ["JK Cement", "JKCEMENT", "INE823G01014"],
+      ["Eicher Motors", "EICHERMOT", "INE066A01021"],
+      ["Kaynes Technology India", "KAYNES", "INE918Z01012"],
+      ["Polycab", "POLYCAB", "INE455K01017"],
+      ["Apollo Hospitals", "APOLLOHOSP", "INE437A01024"],
+      ["MCX", "MCX", "INE745G01035"],
+      ["Amber Enterprises", "AMBER", "INE371P01015"],
+      ["Apar Industries", "APARINDS", "INE372A01015"],
+      ["AstraZeneca Pharma", "ASTRAZEN", "INE203A01020"],
+      ["Bajaj Auto", "BAJAJ-AUTO", "INE917I01010"],
+      ["Oracle Financial Services Software", "OFSS", "INE881D01027"]];
+
+    // UI elements
+    const allStockNameDiv = document.getElementById("allStockName");
+    const showStocksBtn = document.getElementById("showStocksBtn");
+    const closeStocksBtn = document.getElementById("closeStocksBtn");
+    const stockListContainer = document.getElementById("stockListContainer");
+    const fetchBtn = document.getElementById('fetchBtn');
+    const tableBody = document.getElementById('tableBody');
+    const tableHead = document.getElementById('tableHead');
+    const loadingDiv = document.getElementById('loading');
+    const noDataMessageDiv = document.getElementById('noDataMessage');
+    const donateBtn = document.getElementById('donateBtn');
+    const donateBtnModal = document.getElementById('donateBtnModal');
+    const upiModal = document.getElementById('upiModal');
+    const upiModalContent = upiModal.querySelector("div");
+    const closeUpiModalBtn = document.getElementById('closeUpiModalBtn');
+
+    // Populate the hidden stock list on page load
+    function populateAllStocks() {
+      stockListContainer.innerHTML = '';
+      for (let stock of stockList) {
+        const stockName = stock[2];
+        const item = document.createElement("div");
+        item.className = "bg-slate-700 text-slate-300 p-2 rounded-xl shadow-sm hover:bg-slate-600 transition-colors cursor-pointer text-sm";
+        item.textContent = stockName;
+        stockListContainer.appendChild(item);
+      }
+    }
+    populateAllStocks();
+
+    // Toggle the visibility of the all-stocks div
+    function toggleAllStocks() {
+      allStockNameDiv.classList.toggle('hidden');
+    }
+
+    showStocksBtn.addEventListener('click', toggleAllStocks);
+    closeStocksBtn.addEventListener('click', toggleAllStocks);
+
+    // UPI modal functionality
+    function showUpiModal() {
+      upiModal.classList.remove('hidden');
+      setTimeout(() => {
+        upiModalContent.classList.remove('scale-95', 'opacity-0');
+      }, 10);
+    }
+
+    function hideUpiModal() {
+      upiModalContent.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        upiModal.classList.add('hidden');
+      }, 300);
+    }
+
+    donateBtn.addEventListener('click', showUpiModal);
+    donateBtnModal.addEventListener('click', showUpiModal);
+    closeUpiModalBtn.addEventListener('click', hideUpiModal);
+
+    // Close modal when clicking outside of it
+    upiModal.addEventListener('click', (e) => {
+      if (e.target === upiModal) {
+        hideUpiModal();
+      }
+    });
+
+    // Helper function for rate limiting API calls
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Gets the index of the first trading day of each year
+    function getFirstTradingDayIndexes(candles) {
+      const seenYears = new Set();
+      const indexes = {};
+      for (let i = candles.length - 1; i >= 0; i--) {
+        const dateStr = candles[i][0];
+        const year = new Date(dateStr).getFullYear();
+        if (!seenYears.has(year)) {
+          seenYears.add(year);
+          indexes[year] = i;
         }
-        populateAllStocks();
+      }
+      return indexes;
+    }
 
-        // Toggle the visibility of the all-stocks div
-        function toggleAllStocks() {
-            allStockNameDiv.classList.toggle('hidden');
+    // Fetch data for a single stock
+    async function fetchData(instrument_key, stock_symbol, down = 20, SMA_period = 200) {
+      const todayDate = new Date().toISOString().split('T')[0];
+      const urlIntra = `https://api.upstox.com/v3/historical-candle/intraday/${instrument_key}/days/1`;
+      const urlHistory = `https://api.upstox.com/v3/historical-candle/${instrument_key}/days/1/${todayDate}/2020-01-01`;
+      const headers = {
+        'Accept': 'application/json'
+      };
+
+      try {
+        const [responseHist, responseIntra] = await Promise.all([
+          axios.get(urlHistory, {
+            headers
+          }),
+          axios.get(urlIntra, {
+            headers
+          })
+        ]);
+
+        let candles = [
+          ...responseIntra.data.data.candles,
+          ...responseHist.data.data.candles
+        ];
+
+        let data = {};
+        let yearIndex = getFirstTradingDayIndexes(candles);
+        const lowPriceList = candles.map(candle => candle[3]);
+        const highestPrice = Math.max(...candles.map(candle => candle[2]));
+        const closing200 = candles.map(candle => candle[4]).slice(0, SMA_period);
+        const SMA200 = closing200.reduce((acc, val) => acc + val, 0) / SMA_period;
+
+        const todayLowPrice = candles[0][3];
+        let percentageDown = (highestPrice - todayLowPrice) * 100 / highestPrice;
+
+        if (percentageDown > down && todayLowPrice < SMA200) {
+          Object.entries(yearIndex).forEach(([key, value]) => {
+            data[`yearLowPrice${key}`] = Math.min(...lowPriceList.slice(0, value));
+          });
+          data['highestPrice'] = highestPrice;
+          data['todayLowPrice'] = todayLowPrice;
+          data['percentageDown'] = `${percentageDown.toFixed(2)}%`;
+          data["instrument_key"] = instrument_key;
+          data["stock_symbol"] = stock_symbol;
         }
 
-        showStocksBtn.addEventListener('click', toggleAllStocks);
-        closeStocksBtn.addEventListener('click', toggleAllStocks);
+        return data;
 
-        // UPI modal functionality
-        function showUpiModal() {
-            upiModal.classList.remove('hidden');
-            setTimeout(() => {
-                upiModalContent.classList.remove('scale-95', 'opacity-0');
-            }, 10);
-        }
+      } catch (error) {
+        console.error(`Error fetching ${stock_symbol}:`, error.message);
+        return {};
+      }
+    }
 
-        function hideUpiModal() {
-            upiModalContent.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                upiModal.classList.add('hidden');
-            }, 300);
-        }
+    // Main function to iterate through all stocks
+    async function forEachStock(stockList, down, SMA_period) {
+      const finalOutput = {};
+      const BATCH_SIZE = 50;
 
-        donateBtn.addEventListener('click', showUpiModal);
-        donateBtnModal.addEventListener('click', showUpiModal);
-        closeUpiModalBtn.addEventListener('click', hideUpiModal);
+      loadingDiv.classList.remove('hidden');
+      tableBody.innerHTML = '';
+      noDataMessageDiv.classList.add('hidden');
 
-        // Close modal when clicking outside of it
-        upiModal.addEventListener('click', (e) => {
-            if (e.target === upiModal) {
-                hideUpiModal();
-            }
-        });
+      for (let i = 0; i < stockList.length; i += BATCH_SIZE) {
+        const batch = stockList.slice(i, i + BATCH_SIZE);
+        const promises = batch.map(stock =>
+          fetchData(stock[0], stock[1], down, SMA_period)
+            .then(data => {
+              if (Object.keys(data).length !== 0) {
+                finalOutput[stock[1]] = data;
+              }
+            })
+        );
 
-        // Helper function for rate limiting API calls
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
+        await Promise.all(promises);
+        console.log(`✅ Completed batch ${i / BATCH_SIZE + 1}`);
+        await sleep(1000);
+      }
 
-        // Gets the index of the first trading day of each year
-        function getFirstTradingDayIndexes(candles) {
-            const seenYears = new Set();
-            const indexes = {};
-            for (let i = candles.length - 1; i >= 0; i--) {
-                const dateStr = candles[i][0];
-                const year = new Date(dateStr).getFullYear();
-                if (!seenYears.has(year)) {
-                    seenYears.add(year);
-                    indexes[year] = i;
-                }
-            }
-            return indexes;
-        }
+      loadingDiv.classList.add('hidden');
+      showDataInTable(finalOutput);
+    }
 
-        // Fetch data for a single stock
-        async function fetchData(instrument_key, stock_symbol, down = 20, SMA_period = 200) {
-            const todayDate = new Date().toISOString().split('T')[0];
-            const urlIntra = `https://api.upstox.com/v3/historical-candle/intraday/${instrument_key}/days/1`;
-            const urlHistory = `https://api.upstox.com/v3/historical-candle/${instrument_key}/days/1/${todayDate}/2020-01-01`;
-            const headers = {
-                'Accept': 'application/json'
-            };
+    // Click handler for the fetch button
+    document.getElementById('fetchBtn').addEventListener('click', () => {
+      const down = parseFloat(document.getElementById('down').value);
+      const sma = parseInt(document.getElementById('sma').value);
 
-            try {
-                const [responseHist, responseIntra] = await Promise.all([
-                    axios.get(urlHistory, {
-                        headers
-                    }),
-                    axios.get(urlIntra, {
-                        headers
-                    })
-                ]);
-
-                let candles = [
-                    ...responseIntra.data.data.candles,
-                    ...responseHist.data.data.candles
-                ];
-
-                let data = {};
-                let yearIndex = getFirstTradingDayIndexes(candles);
-                const lowPriceList = candles.map(candle => candle[3]);
-                const highestPrice = Math.max(...candles.map(candle => candle[2]));
-                const closing200 = candles.map(candle => candle[4]).slice(0, SMA_period);
-                const SMA200 = closing200.reduce((acc, val) => acc + val, 0) / SMA_period;
-
-                const todayLowPrice = candles[0][3];
-                let percentageDown = (highestPrice - todayLowPrice) * 100 / highestPrice;
-
-                if (percentageDown > down && todayLowPrice < SMA200) {
-                    Object.entries(yearIndex).forEach(([key, value]) => {
-                        data[`yearLowPrice${key}`] = Math.min(...lowPriceList.slice(0, value));
-                    });
-                    data['highestPrice'] = highestPrice;
-                    data['todayLowPrice'] = todayLowPrice;
-                    data['percentageDown'] = `${percentageDown.toFixed(2)}%`;
-                    data["instrument_key"] = instrument_key;
-                    data["stock_symbol"] = stock_symbol;
-                }
-
-                return data;
-
-            } catch (error) {
-                console.error(`Error fetching ${stock_symbol}:`, error.message);
-                return {};
-            }
-        }
-
-        // Main function to iterate through all stocks
-        async function forEachStock(stockList, down, SMA_period) {
-            const finalOutput = {};
-            const BATCH_SIZE = 50;
-
-            loadingDiv.classList.remove('hidden');
-            tableBody.innerHTML = '';
-            noDataMessageDiv.classList.add('hidden');
-
-            for (let i = 0; i < stockList.length; i += BATCH_SIZE) {
-                const batch = stockList.slice(i, i + BATCH_SIZE);
-                const promises = batch.map(stock =>
-                    fetchData(stock[0], stock[1], down, SMA_period)
-                    .then(data => {
-                        if (Object.keys(data).length !== 0) {
-                            finalOutput[stock[1]] = data;
-                        }
-                    })
-                );
-
-                await Promise.all(promises);
-                console.log(`✅ Completed batch ${i / BATCH_SIZE + 1}`);
-                await sleep(1000);
-            }
-
-            loadingDiv.classList.add('hidden');
-            showDataInTable(finalOutput);
-        }
-
-        // Click handler for the fetch button
-        document.getElementById('fetchBtn').addEventListener('click', () => {
-            const down = parseFloat(document.getElementById('down').value);
-            const sma = parseInt(document.getElementById('sma').value);
-
-            // Set up table headers
-            tableHead.innerHTML = `
+      // Set up table headers
+      tableHead.innerHTML = `
                 <tr>
                     <th class="rounded-tl-xl">Stock Symbol</th>
                     <th>Highest Price</th>
@@ -632,20 +870,20 @@
                 </tr>
             `;
 
-            forEachStock(stockList, down, sma);
-        });
+      forEachStock(stockList, down, sma);
+    });
 
-        // Function to display the fetched data in the table
-        function showDataInTable(data) {
-            const stocksToShow = Object.values(data);
-            if (stocksToShow.length === 0) {
-                noDataMessageDiv.classList.remove('hidden');
-                return;
-            }
+    // Function to display the fetched data in the table
+    function showDataInTable(data) {
+      const stocksToShow = Object.values(data);
+      if (stocksToShow.length === 0) {
+        noDataMessageDiv.classList.remove('hidden');
+        return;
+      }
 
-            for (let stock of stocksToShow) {
-                const row = document.createElement("tr");
-                row.innerHTML = `
+      for (let stock of stocksToShow) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
                     <td>${stock.stock_symbol || '-'}</td>
                     <td>${stock.highestPrice ? stock.highestPrice.toFixed(2) : '-'}</td>
                     <td>${stock.todayLowPrice ? stock.todayLowPrice.toFixed(2) : '-'}</td>
@@ -657,12 +895,11 @@
                     <td>${stock.yearLowPrice2021 ? stock.yearLowPrice2021.toFixed(2) : '-'}</td>
                     <td>${stock.yearLowPrice2020 ? stock.yearLowPrice2020.toFixed(2) : '-'}</td>
                 `;
-                tableBody.appendChild(row);
-            }
-        }
-    </script>
+        tableBody.appendChild(row);
+      }
+    }
+  </script>
 </body>
 
 
 </html>
-
