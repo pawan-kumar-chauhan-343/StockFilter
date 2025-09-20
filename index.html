@@ -158,6 +158,7 @@
       </div>
     </div>
 
+    <!-- ALL STOCKS MODAL -->
     <div id="allStockName"
       class="hidden fixed inset-0 z-50 bg-slate-900 bg-opacity-95 p-6 overflow-y-auto transition-all duration-300">
       <div class="ticker-tape font-mono text-xs md:text-sm text-yellow-300 mb-4 md:mb-6">
@@ -215,18 +216,18 @@
       <div id="loading" class="hidden p-4 text-center text-blue-400 animate-pulse text-sm">
         Fetching data... please wait.
       </div>
+      <!-- Error messages (UI-only) -->
+      <div id="errorMessage" class="hidden p-4 text-center text-red-400 italic text-sm"></div>
     </div>
   </main>
 
   <footer id="footer" class="text-center p-4 text-xs md:text-sm text-slate-500 mt-4 md:mt-8 border-t border-slate-700">
     <p><span class="font-bold text-red-400 mr-1">Disclaimer:</span> The following data is provided for informational
-      and
-      research purposes only. It represents historical and current stock price information and does not constitute
+      and research purposes only. It represents historical and current stock price information and does not constitute
       financial advice or a recommendation to buy, sell, or hold any stock. Please consult with a licensed
-      financial
-      advisor before making investment decisions. The website owner is not responsible for any financial losses
-      arising
-      from the use of this information.</p>
+      financial advisor before making investment decisions. The website owner is not responsible for any financial
+      losses
+      arising from the use of this information.</p>
   </footer>
 
   <div id="upiModal"
@@ -240,7 +241,7 @@
       </button>
       <h3 class="text-xl md:text-2xl font-bold text-center text-blue-400 mb-4 md:mb-6">Scan to Donate</h3>
       <div class="text-center">
-        <img id="upiQrCode" src="UPI.jpg" alt="UPI QR Code"
+        <img id="upiQrCode" src="images/UPI.jpg" alt="UPI QR Code"
           class="rounded-lg shadow-lg mx-auto mb-4 w-48 h-48 md:w-auto md:h-auto">
         <p class="text-slate-400 text-xs md:text-sm">Thank you for your support!</p>
       </div>
@@ -249,439 +250,122 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
   <script>
-    const stockList =[["INE351F01018", "Jaiprakash Power Ventures", "JPPOWER"],
-      ["INE528G01035", "Yes Bank", "YESBANK"],
-      ["INE821I01022", "IRB Infrastructure Developers", "IRB"],
-      ["INE0W2G01015", "Sagility India", "SAGILITY"],
-      ["INE0FS801015", "Motherson Sumi Wiring", "MSUMI"],
-      ["INE457A01014", "Bank of Maharashtra", "MAHABANK"],
-      ["INE040H01021", "Suzlon Energy", "SUZLON"],
-      ["INE092T01019", "IDFC First Bank", "IDFCFIRSTB"],
-      ["INE548A01028", "HFCL", "HFCL"],
-      ["INE584A01023", "NMDC", "NMDC"],
-      ["INE995S01015", "Niva Bupa Health Insurance Company", "NIVABUPA"],
-      ["INE848E01016", "NHPC", "NHPC"],
-      ["INE002L01015", "SJVN", "SJVN"],
-      ["INE0ONG01011", "NTPC Green Energy", "NTPCGREEN"],
-      ["INE168A01041", "Jammu & Kashmir Bank", "J&KBANK"],
-      ["INE423Y01016", "SBFC Finance", "SBFC"],
-      ["INE775A01035", "Samvardhana Motherson International", "MOTHERSON"],
-      ["INE095N01031", "NBCC", "NBCC"],
-      ["INE160A01022", "Punjab National Bank", "PNB"],
-      ["INE256A01028", "Zee Entertainment", "ZEEL"],
-      ["INE476A01022", "Canara Bank", "CANBK"],
-      ["INE084A01016", "Bank of India", "BANKINDIA"],
-      ["INE192B01031", "Welspun Living", "WELSPUNLIV"],
-      ["INE103A01014", "Mangalore Refinery & Petroleum", "MRPL"],
-      ["INE114A01011", "Steel Authority of India", "SAIL"],
-      ["INE692A01016", "Union Bank of India", "UNIONBANK"],
-      ["INE208A01029", "Ashok Leyland", "ASHOKLEY"],
-      ["INE148I01020", "Sammaan Capital", "SAMMAANCAP"],
-      ["INE242A01010", "Indian Oil Corporation", "IOC"],
-      ["INE022Q01020", "Indian Energy Exchange", "IEX"],
-      ["INE066P01011", "Inox Wind", "INOXWIND"],
-      ["INE01EA01019", "Vishal Mega Mart", "VMM"],
-      ["INE517F01014", "Gujarat Pipavav Port", "GPPL"],
-      ["INE202E01016", "IREDA", "IREDA"],
-      ["INE545U01014", "Bandhan Bank", "BANDHANBNK"],
-      ["INE486A01021", "CESC", "CESC"],
-      ["INE081A01020", "Tata Steel", "TATASTEEL"],
-      ["INE780C01023", "JM Financial", "JMFINANCIL"],
-      ["INE970X01018", "Lemon Tree Hotels", "LEMONTREE"],
-      ["INE872J01023", "Devyani International", "DEVYANI"],
-      ["INE129A01019", "GAIL", "GAIL"],
-      ["INE962Y01021", "Ircon International", "IRCON"],
-      ["INE180C01042", "Capri Global Capital", "CGCL"],
-      ["INE171A01029", "Federal Bank", "FEDERALBNK"],
-      ["INE470Y01017", "The New India Assurance Company", "NIACL"],
-      ["INE172A01027", "Castrol", "CASTROLIND"],
-      ["INE634I01029", "KNR Constructions", "KNRCON"],
-      ["INE510A01028", "Engineers India", "ENGINERSIN"],
-      ["INE0DK501011", "Piramal Pharma", "PPLPHARMA"],
-      ["INE139A01034", "NALCO", "NATIONALUM"],
-      ["INE491A01021", "City Union Bank", "CUB"],
-      ["INE324A01032", "Jindal SAW", "JINDALSAW"],
-      ["INE203G01027", "Indraprastha Gas", "IGL"],
-      ["INE183A01024", "Finolex Industries", "FINPIPE"],
-      ["INE868B01028", "NCC", "NCC"],
-      ["INE109A01011", "Shipping Corporation of India", "SCI"],
-      ["INE031A01017", "HUDCO", "HUDCO"],
-      ["INE213A01029", "Oil & Natural Gas Corporation", "ONGC"],
-      ["INE257A01026", "Bharat Heavy Electricals", "BHEL"],
-      ["INE498L01015", "L&T Finance", "LTF"],
-      ["INE531A01024", "Kansai Nerolac Paints", "KANSINER"],
-      ["INE028A01039", "Bank of Baroda", "BANKBARODA"],
-      ["INE075A01022", "Wipro", "WIPRO"],
-      ["INE699H01024", "AWL Agri Business", "AWL"],
-      ["INE589A01014", "NLC India", "NLCINDIA"],
-      ["INE177H01039", "Godawari Power & ISPAT", "GPIL"],
-      ["INE00M201021", "Sterling & Wilson Renewable Energy", "SWSOLAR"],
-      ["INE976G01028", "RBL Bank", "RBLBANK"],
-      ["INE320J01015", "RITES", "RITES"],
-      ["INE347G01014", "Petronet LNG", "PETRONET"],
-      ["INE531E01026", "Hindustan Copper", "HINDCOPPER"],
-      ["INE278Y01022", "Campus Activewear", "CAMPUS"],
-      ["INE752E01010", "Power Grid Corporation of India", "POWERGRID"],
-      ["INE522D01027", "Manappuram Finance", "MANAPPURAM"],
-      ["INE674K01013", "Aditya Birla Capital", "ABCAPITAL"],
-      ["INE774D01024", "M&M Financial Services", "M&MFIN"],
-      ["INE622W01025", "ACME Solar Holdings", "ACMESOLAR"],
-      ["INE891D01026", "Redington", "REDINGTON"],
-      ["INE0J5401028", "Mamaearth", "HONASA"],
-      ["INE195J01029", "PNC Infratech", "PNCINFRA"],
-      ["INE299U01018", "Crompton Greaves", "CROMPTON"],
-      ["INE246F01010", "Gujarat State Petronet", "GSPL"],
-      ["INE758E01017", "Jio Financial Services", "JIOFIN"],
-      ["INE806T01020", "Sapphire Foods", "SAPPHIRE"],
-      ["INE668F01031", "Jyothy Laboratories", "JYOTHYLAB"],
-      ["INE029A01011", "Bharat Petroleum", "BPCL"],
-      ["INE852O01025", "Aptus Value Housing Finance", "APTUS"],
-      ["INE880J01026", "JSW Infrastructure", "JSWINFRA"],
-      ["INE758T01015", "Eternal", "ETERNAL"],
-      ["INE733E01010", "NTPC", "NTPC"],
-      ["INE209L01016", "Jupiter Wagons", "JWL"],
-      ["INE03JT01014", "Go Digit General Insurance", "GODIGIT"],
-      ["INE121J01017", "Indus Towers", "INDUSTOWER"],
-      ["INE256C01024", "Triveni Enineering & Industries", "TRIVENI"],
-      ["INE415G01027", "Rail Vikas Nigam", "RVNL"],
-      ["INE481Y01014", "GIC of India", "GICRE"],
-      ["INE153T01027", "BLS International Services", "BLS"],
-      ["INE376G01013", "Biocon", "BIOCON"],
-      ["INE0Q9301021", "International Gemmological Institute", "IGIL"],
-      ["INE951I01027", "V-Guard Industries", "VGUARD"],
-      ["INE573A01042", "JK Tyre & Industries", "JKTYRE"],
-      ["INE684F01012", "Firstsource Solutions", "FSL"],
-      ["INE836A01035", "Birlasoft", "BSOFT"],
-      ["INE020B01018", "REC", "RECLTD"],
-      ["INE074A01025", "Praj Industries", "PRAJIND"],
-      ["INE230A01023", "EIH Hotels", "EIHOTEL"],
-      ["INE769A01020", "Aarti Industries", "AARTIIND"],
-      ["INE269A01021", "Sonata Software", "SONATSOFTW"],
-      ["INE522F01014", "Coal India", "COALINDIA"],
-      ["INE245A01021", "Tata Power", "TATAPOWER"],
-      ["INE274J01014", "Oil India", "OIL"],
-      ["INE263A01024", "Bharat Electronics", "BEL"],
-      ["INE134E01011", "Power Finance Corporation", "PFC"],
-      ["INE154A01025", "ITC", "ITC"],
-      ["INE094A01015", "Hindustan Petroleum", "HINDPETRO"],
-      ["INE602A01031", "PCBL Chemical", "PCBL"],
-      ["INE302A01020", "Exide Industries", "EXIDEIND"],
-      ["INE0I7C01011", "Latent View Analytics", "LATENTVIEW"],
-      ["INE825A01020", "Vardhman Textiles", "VTL"],
-      ["INE228A01035", "Usha Martin", "USHAMART"],
-      ["INE844O01030", "Gujarat Gas", "GUJGASLTD"],
-      ["INE073K01018", "Sona BLW Precision Forgings", "SONACOMS"],
-      ["INE575P01011", "Star Health Insurance", "STARHEALTH"],
-      ["INE267A01025", "Hindustan Zinc", "HINDZINC"],
-      ["INE530B01024", "IIFL Finance", "IIFL"],
-      ["INE205A01025", "Vedanta", "VEDL"],
-      ["INE101I01011", "Afcons Infrastructure", "AFCONS"],
-      ["INE019C01026", "Himadri Speciality Chemical", "HSCL"],
-      ["INE818H01020", "LT Foods", "LTFOODS"],
-      ["INE200M01039", "Varun Beverages", "VBL"],
-      ["INE09XN01023", "Akums Drugs & Pharma", "AKUMS"],
-      ["INE148O01028", "Delhivery", "DELHIVERY"],
-      ["INE438A01022", "Apollo Tyres", "APOLLOTYRE"],
-      ["INE743M01012", "RHI Magnesita", "RHIM"],
-      ["INE665A01038", "Swan Corp", "SWANCORP"],
-      ["INE979A01025", "Saregama India", "SAREGAMA"],
-      ["INE511C01022", "Poonawalla Fincorp", "POONAWALLA"],
-      ["INE285A01027", "Elgi Equipments", "ELGIEQUIP"],
-      ["INE119A01028", "Balrampur Chini Mills", "BALRAMCHIN"],
-      ["INE303R01014", "Kalyan Jewellers", "KALYANKJIL"],
-      ["INE113A01013", "Gujarat Narmada Valley Fert & Chem", "GNFC"],
-      ["INE545A01024", "HEG", "HEG"],
-      ["INE463A01038", "Berger Paints", "BERGEPAINT"],
-      ["INE763I01026", "Transformers & Rectifiers", "TARIL"],
-      ["INE016A01026", "Dabur India", "DABUR"],
-      ["INE152M01016", "Triveni Turbines", "TRITURBINE"],
-      ["INE128S01021", "Five Star Business Finance", "FIVESTAR"],
-      ["INE883F01010", "Aadhar Housing Finance", "AADHARHFC"],
-      ["INE085A01013", "Chambal Fertilisers & Chemicals", "CHAMBLFERT"],
-      ["INE121E01018", "JSW Energy", "JSWENERGY"],
-      ["INE842C01021", "Minda Corporation", "MINDACORP"],
-      ["INE111A01025", "Container Corporation of India", "CONCOR"],
-      ["INE424H01027", "Sun TV Network", "SUNTV"],
-      ["INE399G01023", "Ramkrishna Forgings", "RKFORGE"],
-      ["INE371A01025", "Graphite", "GRAPHITE"],
-      ["INE457L01029", "PG Electroplast", "PGEL"],
-      ["INE385C01021", "Sarda Energy & Minerals", "SARDAEN"],
-      ["INE548C01032", "Emami", "EMAMILTD"],
-      ["INE419U01012", "Happiest Minds Technologies", "HAPPSTMNDS"],
-      ["INE079A01024", "Ambuja Cements", "AMBUJACEM"],
-      ["INE065X01017", "Indegene", "INDGN"],
-      ["INE115A01026", "LIC Housing Finance", "LICHSGFIN"],
-      ["INE258G01013", "Sumitomo Chemical", "SUMICHEM"],
-      ["INE726G01019", "ICICI Prudential Life Insurance", "ICICIPRULI"],
-      ["INE619A01035", "Patanjali Foods", "PATANJALI"],
-      ["INE010J01012", "Tejas Networks", "TEJASNET"],
-      ["INE205B01031", "Elecon Engineering Company", "ELECON"],
-      ["INE797F01020", "Jubilant FoodWorks", "JUBLFOOD"],
-      ["INE271B01025", "Maharashtra Seamless", "MAHSEAMLES"],
-      ["INE721A01047", "Shriram Finance", "SHRIRAMFIN"],
-      ["INE242C01024", "Anant Raj", "ANANTRAJ"],
-      ["INE914M01019", "Aster DM Healthcare", "ASTERDM"],
-      ["INE399L01023", "Adani Total Gas", "ATGL"],
-      ["INE398R01022", "Syngene International", "SYNGENE"],
-      ["INE0BY001018", "Jubilant Ingrevia", "JUBLINGREA"],
-      ["INE628A01036", "UPL", "UPL"],
-      ["INE562A01011", "Indian Bank", "INDIANB"],
-      ["INE155A01022", "Tata Motors", "TATAMOTORS"],
-      ["INE814H01011", "Adani Power", "ADANIPOWER"],
-      ["INE825V01034", "Vedant Fashions", "MANYAVAR"],
-      ["INE949L01017", "AU Small Finance Bank", "AUBANK"],
-      ["INE196A01026", "Marico", "MARICO"],
-      ["INE142M01025", "Tata Technologies", "TATATECH"],
-      ["INE274F01020", "Westlife Foodworld", "WESTLIFE"],
-      ["INE850D01014", "Godrej Agrovet", "GODREJAGRO"],
-      ["INE335Y01020", "IRCTC", "IRCTC"],
-      ["INE178A01016", "Chennai Petroleum Corporation", "CHENNPETRO"],
-      ["INE038A01020", "Hindalco Industries", "HINDALCO"],
-      ["INE095A01012", "Indusind Bank", "INDUSINDBK"],
-      ["INE967H01025", "Krishna Institute of Medical Sciences", "KIMS"],
-      ["INE477A01020", "Can Fin Homes", "CANFINHOME"],
-      ["INE053A01029", "Indian Hotels Company", "INDHOTEL"],
-      ["INE271C01023", "DLF", "DLF"],
-      ["INE220G01021", "Jindal Stainless", "JSL"],
-      ["INE067A01029", "CG Power & Industrial Solutions", "CGPOWER"],
-      ["INE795G01014", "HDFC Life Insurance", "HDFCLIFE"],
-      ["INE00E101023", "Bikaji Foods International", "BIKAJI"],
-      ["INE208C01025", "Aegis Logistics", "AEGISLOG"],
-      ["INE348B01021", "Century Plyboards", "CENTURYPLY"],
-      ["INE404A01024", "Aditya Birla Sun Life AMC", "ABSLAMC"],
-      ["INE0DYJ01015", "Syrma SGS", "SYRMA"],
-      ["INE235A01022", "Finolex Cables", "FINCABLES"],
-      ["INE298J01013", "Nippon Life India AMC", "NAM-INDIA"],
-      ["INE599M01018", "Just Dial", "JUSTDIAL"],
-      ["INE450U01017", "Route Mobile", "ROUTE"],
-      ["INE520A01027", "Zensar Technologies", "ZENSARTECH"],
-      ["INE062A01020", "State Bank of India", "SBIN"],
-      ["INE389H01022", "KEC International", "KEC"],
-      ["INE572E01012", "PNB Housing Finance", "PNBHOUSING"],
-      ["INE018E01016", "SBI Cards", "SBICARD"],
-      ["INE931S01010", "Adani Energy Solutions", "ADANIENSOL"],
-      ["INE439A01020", "Asahi India Glass", "ASAHIINDIA"],
-      ["INE987B01026", "Natco Pharma", "NATCOPHARM"],
-      ["INE421D01022", "CCL Products", "CCL"],
-      ["INE07Y701011", "Schneider Electric Infra", "POWERINDIA"],
-      ["INE191B01025", "Welspun Corp", "WELCORP"],
-      ["INE810G01011", "Shyam Metalics & Energy", "SHYAMMETL"],
-      ["INE03QK01018", "Cohance Lifesciences", "COHANCE"],
-      ["INE570L01029", "Sai Life Sciences", "SAILIFE"],
-      ["INE619B01017", "Newgen Software Technologies", "NEWGEN"],
-      ["INE947Q01028", "Laurus Labs", "LAURUSLABS"],
-      ["INE791I01019", "Brigade Enterprises", "BRIGADE"],
-      ["INE338I01027", "Motilal Oswal Financial Services", "MOTILALOFS"],
-      ["INE980O01024", "Jyoti CNC Automation", "JYOTICNC"],
-      ["INE061F01013", "Fortis Healthcare", "FORTIS"],
-      ["INE615H01020", "Titagarh Rail Systems", "TITAGARH"],
-      ["INE120A01034", "Carborundum Universal", "CARBORUNIV"],
-      ["INE901L01018", "Alembic Pharmaceuticals", "APLLTD"],
-      ["INE146L01010", "Kirloskar Oil Engines", "KIRLOSENG"],
-      ["INE040A01034", "HDFC Bank", "HDFCBANK"],
-      ["INE296A01032", "Bajaj Finance", "BAJFINANCE"],
-      ["INE092A01019", "Tata Chemicals", "TATACHEM"],
-      ["INE885A01032", "Amara Raja Energy & Mobility", "ARE&M"],
-      ["INE427F01016", "Chalet Hotels", "CHALET"],
-      ["INE364U01010", "Adani Green Energy", "ADANIGREEN"],
-      ["INE010B01027", "Zydus Life Science", "ZYDUSLIFE"],
-      ["INE387A01021", "Sundram Fasteners", "SUNDRMFAST"],
-      ["INE749A01030", "Jindal Steel", "JINDALSTEL"],
-      ["INE03Q201024", "Alivus Life Sciences", "ALIVUS"],
-      ["INE331A01037", "Ramco Cements", "RAMCOCEM"],
-      ["INE017A01032", "Great Eastern Shipping Company", "GESHIP"],
-      ["INE043W01024", "Vijaya Diagnostic Centre", "VIJAYA"],
-      ["INE306R01017", "Intellect Design Arena", "INTELLECT"],
-      ["INE126A01031", "EID Parry", "EIDPARRY"],
-      ["INE466L01038", "360 One WAM", "360ONE"],
-      ["INE700A01033", "Jubilant Pharmova", "JUBLPHARMA"],
-      ["INE903U01023", "Signatureglobal", "SIGNATURE"],
-      ["INE406A01037", "Aurobindo Pharma", "AUROPHARMA"],
-      ["INE140A01024", "Piramal Enterprises", "PEL"],
-      ["INE019A01038", "JSW Steel", "JSWSTEEL"],
-      ["INE192A01025", "Tata Consumer Products", "TATACONSUM"],
-      ["INE930H01031", "KPR Mill", "KPRMILL"],
-      ["INE238A01034", "Axis Bank", "AXISBANK"],
-      ["INE138Y01010", "KFin Technologies", "KFINTECH"],
-      ["INE731H01025", "Action Construction Equipment", "ACE"],
-      ["INE027H01010", "Max Healthcare Institute", "MAXHEALTH"],
-      ["INE233A01035", "Godrej Industries", "GODREJIND"],
-      ["INE227W01023", "Clean Science & Technology", "CLEAN"],
-      ["INE239A01024", "Nestle", "NESTLEIND"],
-      ["INE217B01036", "Kajaria Ceramics", "KAJARIACER"],
-      ["INE670K01029", "Lodha Developers", "LODHA"],
-      ["INE616N01034", "INOX India", "INOXINDIA"],
-      ["INE176A01028", "Bata", "BATAINDIA"],
-      ["INE102D01028", "Godrej Consumer Products", "GODREJCP"],
-      ["INE136B01020", "Cyient", "CYIENT"],
-      ["INE499A01024", "DCM Shriram Consolidated", "DCMSHRIRAM"],
-      ["INE777K01022", "RR Kabel", "RRKABEL"],
-      ["INE813H01021", "Torrent Power", "TORNTPOWER"],
-      ["INE481N01025", "Home First Finance Company", "HOMEFIRST"],
-      ["INE220B01022", "Kalpataru Projects International", "KPIL"],
-      ["INE02ID01020", "Raymond Lifestyle", "RAYMONDLSL"],
-      ["INE465A01025", "Bharat Forge", "BHARATFORG"],
-      ["INE04I401011", "KPIT Technologies", "KPITTECH"],
-      ["INE405E01023", "UNO Minda", "UNOMINDA"],
-      ["INE089A01031", "Dr Reddys Laboratories", "DRREDDY"],
-      ["INE854D01024", "United Spirits", "UNITDSPR"],
-      ["INE281B01032", "Lloyds Metals & Energy", "LLOYDSME"],
-      ["INE716A01013", "Whirlpool", "WHIRLPOOL"],
-      ["INE168P01015", "Emcure Pharmaceuticals", "EMCURE"],
-      ["INE002S01010", "Mahanagar Gas", "MGL"],
-      ["INE474Q01031", "Global Health", "MEDANTA"],
-      ["INE094J01016", "UTI AMC", "UTIAMC"],
-      ["INE741K01010", "Credit Access Grameen", "CREDITACC"],
-      ["INE663F01032", "Info Edge", "NAUKRI"],
-      ["INE090A01021", "ICICI Bank", "ICICIBANK"],
-      ["INE002A01018", "Reliance Industries", "RELIANCE"],
-      ["INE285K01026", "Techno Electric & Engineering", "TECHNOE"],
-      ["INE961O01016", "Rainbow Childrens Medicare", "RAINBOW"],
-      ["INE226A01021", "Voltas", "VOLTAS"],
-      ["INE742F01042", "Adani Ports & SEZ", "ADANIPORTS"],
-      ["INE571A01038", "IPCA Laboratories", "IPCALAB"],
-      ["INE006I01046", "Astral", "ASTRAL"],
-      ["INE501A01019", "Deepak Fertilisers & Petrochemicals", "DEEPAKFERT"],
-      ["INE860A01027", "HCL Technologies", "HCLTECH"],
-      ["INE009A01021", "Infosys", "INFY"],
-      ["INE669C01036", "Tech Mahindra", "TECHM"],
-      ["INE115Q01022", "Inventurus Knowledge Solutions", "IKS"],
-      ["INE180A01020", "Max Financial Services", "MFSL"],
-      ["INE059A01026", "Cipla", "CIPLA"],
-      ["INE176B01034", "Havells", "HAVELLS"],
-      ["INE121A01024", "Cholamandalam Investment", "CHOLAFIN"],
-      ["INE671H01015", "Sobha", "SOBHA"],
-      ["INE251B01027", "Zen Technologies", "ZENTEC"],
-      ["INE811K01011", "Prestige Estates Projects", "PRESTIGE"],
-      ["INE211B01039", "Phoenix Mills", "PHOENIXLTD"],
-      ["INE673O01025", "TBO Tek", "TBOTEK"],
-      ["INE171Z01026", "Bharat Dynamics", "BDL"],
-      ["INE406M01024", "Eris Lifesciences", "ERIS"],
-      ["INE0BV301023", "CE Info Systems", "MAPMYINDIA"],
-      ["INE044A01036", "Sun Pharmaceutical", "SUNPHARMA"],
-      ["INE024L01027", "Gravita India", "GRAVITA"],
-      ["INE093I01010", "Oberoi Realty", "OBEROIRLTY"],
-      ["INE216P01012", "Aavas Financiers", "AAVAS"],
-      ["INE151A01013", "Tata Communications", "TATACOMM"],
-      ["INE702C01027", "APL Apollo Tubes", "APLAPOLLO"],
-      ["INE338H01029", "Concord Biotech", "CONCORDBIO"],
-      ["INE572A01036", "J B Chemicals and Pharmaceuticals", "JBCHEPHARM"],
-      ["INE343G01021", "Bharti Hexacom", "BHARTIHEXA"],
-      ["INE410P01011", "Narayana Hrudayalaya", "NH"],
-      ["INE591G01025", "Coforge", "COFORGE"],
-      ["INE686F01025", "United Breweries", "UBL"],
-      ["INE288B01029", "Deepak Nitrite", "DEEPAKNTR"],
-      ["INE417T01026", "PB FinTech", "POLICYBZR"],
-      ["INE123W01016", "SBI Life Insurance", "SBILIFE"],
-      ["INE765G01017", "ICICI Lombard General Insurance", "ICICIGI"],
-      ["INE012A01025", "ACC", "ACC"],
-      ["INE055A01016", "Aditya Birla Real Estate", "ABREL"],
-      ["INE704P01025", "Cochin Shipyard", "COCHINSHIP"],
-      ["INE050A01025", "Bombay Burmah Trading", "BBTC"],
-      ["INE397D01024", "Bharti Airtel", "BHARTIARTL"],
-      ["INE472A01039", "Blue Star", "BLUESTARCO"],
-      ["INE205C01021", "Poly Medicure", "POLYMED"],
-      ["INE149A01033", "Cholamandalam Financial Holdings", "CHOLAHLDNG"],
-      ["INE068V01023", "Gland Pharma", "GLAND"],
-      ["INE237A01028", "Kotak Bank", "KOTAKBANK"],
-      ["INE732A01036", "Kirloskar Brothers", "KIRLOSBROS"],
-      ["INE326A01037", "Lupin", "LUPIN"],
-      ["INE918I01026", "Bajaj Finserv", "BAJAJFINSV"],
-      ["INE150B01039", "Alkyl Amines Chemicals", "ALKYLAMINE"],
-      ["INE935A01035", "Glenmark Pharmaceuticals", "GLENMARK"],
-      ["INE112L01020", "Metropolis Healthcare", "METROPOLIS"],
-      ["INE00WC01027", "Affle 3i", "AFFLE"],
-      ["INE484J01027", "Godrej Properties", "GODREJPROP"],
-      ["INE169A01031", "Coromandel International", "COROMANDEL"],
-      ["INE732I01013", "Angel One", "ANGELONE"],
-      ["INE259A01022", "Colgate Palmolive", "COLPAL"],
-      ["INE475E01026", "Caplin Point Laboratories", "CAPLIPOINT"],
-      ["INE00R701025", "Dalmia Bharat", "DALBHARAT"],
-      ["INE759A01021", "Mastek", "MASTEK"],
-      ["INE933S01016", "IndiaMART InterMesh", "INDIAMART"],
-      ["INE021A01026", "Asian Paints", "ASIANPAINT"],
-      ["INE787D01026", "Balkrishna Industries", "BALKRISIND"],
-      ["INE423A01024", "Adani Enterprises", "ADANIENT"],
-      ["INE030A01027", "Hindustan Unilever", "HINDUNILVR"],
-      ["INE382Z01011", "Garden Reach Shipbuilders", "GRSE"],
-      ["INE321T01012", "DOMS Industries", "DOMS"],
-      ["INE634S01028", "Mankind Pharma", "MANKIND"],
-      ["INE159A01016", "GlaxoSmithKline Pharmaceuticals", "GLAXO"],
-      ["INE0V6F01027", "Hyundai Motor India", "HYUNDAI"],
-      ["INE0IX101010", "Data Patterns", "DATAPATTNS"],
-      ["INE047A01021", "Grasim Industries", "GRASIM"],
-      ["INE913H01037", "Endurance Technologies", "ENDURANCE"],
-      ["INE414G01012", "Muthoot Finance", "MUTHOOTFIN"],
-      ["INE647A01010", "SRF", "SRF"],
-      ["INE249Z01020", "Mazagon Dock Shipbuilders", "MAZDOCK"],
-      ["INE356A01018", "Mphasis", "MPHASIS"],
-      ["INE463V01026", "Anand Rathi Wealth", "ANANDRATHI"],
-      ["INE325A01013", "Timken", "TIMKEN"],
-      ["INE318A01026", "Pidilite Industries", "PIDILITIND"],
-      ["INE944F01028", "Radico Khaitan", "RADICO"],
-      ["INE200A01026", "GE Vernova T&D", "GVT&D"],
-      ["INE212H01026", "AIA Engineering", "AIAENG"],
-      ["INE467B01029", "Tata Consultancy Services", "TCS"],
-      ["INE0NT901020", "Netweb Technologies", "NETWEB"],
-      ["INE152A01029", "Thermax", "THERMAX"],
-      ["INE003A01024", "Siemens", "SIEMENS"],
-      ["INE974X01010", "Tube Investment", "TIINDIA"],
-      ["INE482A01020", "CEAT", "CEATLTD"],
-      ["INE280A01028", "Titan", "TITAN"],
-      ["INE600L01024", "Dr. Lal Path Labs", "LALPATHLAB"],
-      ["INE260B01028", "Godfrey Phillips", "GODFRYPHLP"],
-      ["INE377N01017", "Waaree Energies", "WAAREEENER"],
-      ["INE494B01023", "TVS Motors", "TVSMOTOR"],
-      ["INE101A01026", "Mahindra & Mahindra", "M&M"],
-      ["INE685A01028", "Torrent Pharmaceuticals", "TORNTPHARM"],
-      ["INE018A01030", "Larsen & Toubro", "LT"],
-      ["INE042A01014", "Escorts Kubota", "ESCORTS"],
-      ["INE603J01030", "PI Industries", "PIIND"],
-      ["INE09N301011", "Gujarat Fluorochemicals", "FLUOROCHEM"],
-      ["INE298A01020", "Cummins", "CUMMINSIND"],
-      ["INE596I01012", "Computer Age Management Services", "CAMS"],
-      ["INE513A01022", "Schaeffler India", "SCHAEFFLER"],
-      ["INE878B01027", "KEI Industries", "KEI"],
-      ["INE738I01010", "eClerx Services", "ECLERX"],
-      ["INE010V01017", "L&T Technology Services", "LTTS"],
-      ["INE258A01016", "BEML", "BEML"],
-      ["INE195A01028", "Supreme Industries", "SUPREMEIND"],
-      ["INE373A01013", "BASF", "BASF"],
-      ["INE192R01011", "Avenue Supermarts DMart", "DMART"],
-      ["INE048G01026", "Navin Fluorine International", "NAVINFLUOR"],
-      ["INE640A01023", "SKF India", "SKFINDIA"],
-      ["INE066F01020", "Hindustan Aeronautics", "HAL"],
-      ["INE007A01025", "CRISIL", "CRISIL"],
-      ["INE849A01020", "Trent", "TRENT"],
-      ["INE182A01018", "Pfizer", "PFIZER"],
-      ["INE462A01022", "Bayer Crop Science", "BAYERCROP"],
-      ["INE158A01026", "Hero Motocorp", "HEROMOTOCO"],
-      ["INE117A01022", "ABB", "ABB"],
-      ["INE262H01021", "Persistent Systems", "PERSISTENT"],
-      ["INE214T01019", "LTI Mindtree", "LTIM"],
-      ["INE540L01014", "Alkem Laboratories", "ALKEM"],
-      ["INE646L01027", "Interglobe Aviation", "INDIGO"],
-      ["INE670A01012", "Tata Elxsi", "TATAELXSI"],
-      ["INE233B01017", "Blue Dart Express", "BLUEDART"],
-      ["INE127D01025", "HDFC AMC", "HDFCAMC"],
-      ["INE216A01030", "Britannia Industries", "BRITANNIA"],
-      ["INE361B01024", "Divis Laboratories", "DIVISLAB"],
-      ["INE739E01017", "Cera Sanitaryware", "CERA"],
-      ["INE473A01011", "Linde", "LINDEINDIA"],
-      ["INE100A01010", "ATUL", "ATUL"],
-      ["INE531F01015", "Nuvama Wealth Management", "NUVAMA"],
-      ["INE00LO01017", "Craftsman Automation", "CRAFTSMAN"],
-      ["INE823G01014", "JK Cement", "JKCEMENT"],
-      ["INE066A01021", "Eicher Motors", "EICHERMOT"],
-      ["INE918Z01012", "Kaynes Technology India", "KAYNES"],
-      ["INE455K01017", "Polycab", "POLYCAB"],
-      ["INE437A01024", "Apollo Hospitals", "APOLLOHOSP"],
-      ["INE745G01035", "MCX", "MCX"],
-      ["INE371P01015", "Amber Enterprises", "AMBER"],
-      ["INE372A01015", "Apar Industries", "APARINDS"],
-      ["INE203A01020", "AstraZeneca Pharma", "ASTRAZEN"],
-      ["INE917I01010", "Bajaj Auto", "BAJAJ-AUTO"],
-      ["INE881D01027", "Oracle Financial Services Software", "OFSS"]]
+    // Data provided by the user (kept exactly as before)
+    const stockList = [
+      ["NSE_EQ|INE397D01024", "BHARTIARTL", "Bharti Airtel"],
+      ["NSE_EQ|INE118H01025", "BSE", "BSE"],
+      ["NSE_EQ|INE009A01021", "INFY", "Infosys"],
+      ["NSE_EQ|INE467B01029", "TCS", "Tata Consultancy Services"],
+      ["NSE_EQ|INE002A01018", "RELIANCE", "Reliance Industries"],
+      ["NSE_EQ|INE674K01013", "ABCAPITAL", "Aditya Birla Capital"],
+      ["NSE_EQ|INE012A01025", "ACC", "ACC"],
+      ["NSE_EQ|INE423A01024", "ADANIENT", "Adani Enterprises"],
+      ["NSE_EQ|INE364U01010", "ADANIGREEN", "Adani Green Energy"],
+      ["NSE_EQ|INE742F01042", "ADANIPORTS", "Adani Ports and SEZ"],
+      ["NSE_EQ|INE540L01014", "ALKEM", "Alkem Laboratories"],
+      ["NSE_EQ|INE079A01024", "AMBUJACEM", "Ambuja Cements"],
+      ["NSE_EQ|INE732I01013", "ANGELONE", "Angel One"],
+      ["NSE_EQ|INE702C01027", "APLAPOLLO", "APL Apollo Tubes"],
+      ["NSE_EQ|INE208A01029", "ASHOKLEY", "Ashok Leyland"],
+      ["NSE_EQ|INE021A01026", "ASIANPAINT", "Asian Paints"],
+      ["NSE_EQ|INE006I01046", "ASTRAL", "Astral"],
+      ["NSE_EQ|INE949L01017", "AUBANK", "AU Small Finance Bank"],
+      ["NSE_EQ|INE238A01034", "AXISBANK", "Axis Bank"],
+      ["NSE_EQ|INE918I01026", "BAJAJFINSV", "Bajaj Finserv"],
+      ["NSE_EQ|INE296A01032", "BAJFINANCE", "Bajaj Finance"],
+      ["NSE_EQ|INE263A01024", "BEL", "Bharat Electronics"],
+      ["NSE_EQ|INE465A01025", "BHARATFORG", "Bharat Forge"],
+      ["NSE_EQ|INE257A01026", "BHEL", "BHEL"],
+      ["NSE_EQ|INE472A01039", "BLUESTARCO", "Blue Star"],
+      ["NSE_EQ|INE029A01011", "BPCL", "BPCL"],
+      ["NSE_EQ|INE596I01012", "CAMS", "CAMS"],
+      ["NSE_EQ|INE476A01022", "CANBK", "Canara Bank"],
+      ["NSE_EQ|INE736A01011", "CDSL", "CDSL"],
+      ["NSE_EQ|INE067A01029", "CGPOWER", "CG Power"],
+      ["NSE_EQ|INE121A01024", "CHOLAFIN", "Cholamandalam Investment"],
+      ["NSE_EQ|INE059A01026", "CIPLA", "Cipla"],
+      ["NSE_EQ|INE591G01025", "COFORGE", "Coforge"],
+      ["NSE_EQ|INE259A01022", "COLPAL", "Colgate Palmolive India"],
+      ["NSE_EQ|INE111A01025", "CONCOR", "Container Corporation"],
+      ["NSE_EQ|INE298A01020", "CUMMINSIND", "Cummins India"],
+      ["NSE_EQ|INE136B01020", "CYIENT", "Cyient"],
+      ["NSE_EQ|INE016A01026", "DABUR", "Dabur India"],
+      ["NSE_EQ|INE192R01011", "DMART", "Avenue Supermarts (DMart)"],
+      ["NSE_EQ|INE089A01031", "DRREDDY", "Dr Reddy's Labs"],
+      ["NSE_EQ|INE302A01020", "EXIDEIND", "Exide Industries"],
+      ["NSE_EQ|INE061F01013", "FORTIS", "Fortis Healthcare"],
+      ["NSE_EQ|INE102D01028", "GODREJCP", "Godrej Consumer Products"],
+      ["NSE_EQ|INE484J01027", "GODREJPROP", "Godrej Properties"],
+      ["NSE_EQ|INE047A01021", "GRASIM", "Grasim Industries"],
+      ["NSE_EQ|INE066F01020", "HAL", "Hindustan Aeronautics"],
+      ["NSE_EQ|INE176B01034", "HAVELLS", "Havells India"],
+      ["NSE_EQ|INE860A01027", "HCLTECH", "HCL Technologies"],
+      ["NSE_EQ|INE040A01034", "HDFCBANK", "HDFC Bank"],
+      ["NSE_EQ|INE795G01014", "HDFCLIFE", "HDFC Life"],
+      ["NSE_EQ|INE158A01026", "HEROMOTOCO", "Hero MotoCorp"],
+      ["NSE_EQ|INE030A01027", "HINDUNILVR", "HUL"],
+      ["NSE_EQ|INE090A01021", "ICICIBANK", "ICICI Bank"],
+      ["NSE_EQ|INE726G01019", "ICICIPRULI", "ICICI Prudential Life"],
+      ["NSE_EQ|INE022Q01020", "IEX", "Indian Energy Exchange"],
+      ["NSE_EQ|INE203G01027", "IGL", "Indraprastha Gas"],
+      ["NSE_EQ|INE053A01029", "INDHOTEL", "Indian Hotels (Taj)"],
+      ["NSE_EQ|INE095A01012", "INDUSINDBK", "IndusInd Bank"],
+      ["NSE_EQ|INE335Y01020", "IRCTC", "IRCTC"],
+      ["NSE_EQ|INE202E01016", "IREDA", "IREDA"],
+      ["NSE_EQ|INE154A01025", "ITC", "ITC"],
+      ["NSE_EQ|INE749A01030", "JINDALSTEL", "Jindal Steel & Power"],
+      ["NSE_EQ|INE220G01021", "JSL", "Jindal Stainless"],
+      ["NSE_EQ|INE121E01018", "JSWENERGY", "JSW Energy"],
+      ["NSE_EQ|INE019A01038", "JSWSTEEL", "JSW Steel"],
+      ["NSE_EQ|INE878B01027", "KEI", "KEI Industries"],
+      ["NSE_EQ|INE237A01028", "KOTAKBANK", "Kotak Mahindra Bank"],
+      ["NSE_EQ|INE04I401011", "KPITTECH", "KPIT Technologies"],
+      ["NSE_EQ|INE0J1Y01017", "LICI", "Life Insurance Corporation of India"],
+      ["NSE_EQ|INE018A01030", "LT", "Larsen & Toubro"],
+      ["NSE_EQ|INE326A01037", "LUPIN", "Lupin"],
+      ["NSE_EQ|INE101A01026", "M&M", "Mahindra & Mahindra"],
+      ["NSE_EQ|INE774D01024", "M&MFIN", "M&M Financial Services"],
+      ["NSE_EQ|INE634S01028", "MANKIND", "Mankind Pharma"],
+      ["NSE_EQ|INE196A01026", "MARICO", "Marico"],
+      ["NSE_EQ|INE027H01010", "MAXHEALTH", "Max Healthcare"],
+      ["NSE_EQ|INE249Z01020", "MAZDOCK", "Mazagon Dock Shipbuilders"],
+      ["NSE_EQ|INE356A01018", "MPHASIS", "Mphasis"],
+      ["NSE_EQ|INE663F01032", "NAUKRI", "Info Edge (India)"],
+      ["NSE_EQ|INE239A01024", "NESTLEIND", "Nestle India"],
+      ["NSE_EQ|INE733E01010", "NTPC", "NTPC"],
+      ["NSE_EQ|INE093I01010", "OBEROIRLTY", "Oberoi Realty"],
+      ["NSE_EQ|INE213A01029", "ONGC", "ONGC"],
+      ["NSE_EQ|INE603J01030", "PIIND", "PI Industries"],
+      ["NSE_EQ|INE318A01026", "PIDILITIND", "Pidilite Industries"],
+      ["NSE_EQ|INE752E01010", "POWERGRID", "Power Grid Corporation"],
+      ["NSE_EQ|INE020B01018", "RECLTD", "REC"],
+      ["NSE_EQ|INE415G01027", "RVNL", "Rail Vikas Nigam"],
+      ["NSE_EQ|INE018E01016", "SBICARD", "SBI Cards"],
+      ["NSE_EQ|INE123W01016", "SBILIFE", "SBI Life Insurance"],
+      ["NSE_EQ|INE062A01020", "SBIN", "State Bank of India"],
+      ["NSE_EQ|INE721A01047", "SHRIRAMFIN", "Shriram Finance"],
+      ["NSE_EQ|INE003A01024", "SIEMENS", "Siemens"],
+      ["NSE_EQ|INE647A01010", "SRF", "SRF"],
+      ["NSE_EQ|INE044A01036", "SUNPHARMA", "Sun Pharma"],
+      ["NSE_EQ|INE195A01028", "SUPREMEIND", "Supreme Industries"],
+      ["NSE_EQ|INE398R01022", "SYNGENE", "Syngene International"],
+      ["NSE_EQ|INE192A01025", "TATACONSUM", "Tata Consumer Products"],
+      ["NSE_EQ|INE155A01022", "TATAMOTORS", "Tata Motors"],
+      ["NSE_EQ|INE245A01021", "TATAPOWER", "Tata Power"],
+      ["NSE_EQ|INE081A01020", "TATASTEEL", "Tata Steel"],
+      ["NSE_EQ|INE142M01025", "TATATECH", "Tata Technologies"],
+      ["NSE_EQ|INE669C01036", "TECHM", "Tech Mahindra"],
+      ["NSE_EQ|INE280A01028", "TITAN", "Titan Company"],
+      ["NSE_EQ|INE685A01028", "TORNTPHARM", "Torrent Pharma"],
+      ["NSE_EQ|INE494B01023", "TVSMOTOR", "TVS Motor"],
+      ["NSE_EQ|INE405E01023", "UNOMINDA", "UNO Minda"],
+      ["NSE_EQ|INE628A01036", "UPL", "UPL"],
+      ["NSE_EQ|INE200M01039", "VBL", "Varun Beverages"],
+      ["NSE_EQ|INE226A01021", "VOLTAS", "Voltas"],
+      ["NSE_EQ|INE075A01022", "WIPRO", "Wipro"],
+      ["NSE_EQ|INE010B01027", "ZYDUSLIFE", "Zydus Lifesciences"]
+    ];
+
 
     // UI elements
     const allStockNameDiv = document.getElementById("allStockName");
@@ -698,8 +382,9 @@
     const upiModal = document.getElementById('upiModal');
     const upiModalContent = upiModal.querySelector("div");
     const closeUpiModalBtn = document.getElementById('closeUpiModalBtn');
+    const errorDiv = document.getElementById("errorMessage");
 
-    // Populate the hidden stock list on page load
+    // Populate the hidden stock list on page load (unchanged logic)
     function populateAllStocks() {
       stockListContainer.innerHTML = '';
       for (let stock of stockList) {
@@ -714,6 +399,8 @@
 
     // Toggle the visibility of the all-stocks div
     function toggleAllStocks() {
+      // Auto-clear errors when user opens/closes stock list (UI-only)
+      clearErrors();
       allStockNameDiv.classList.toggle('hidden');
     }
 
@@ -751,6 +438,19 @@
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    // Error UI helpers (UI-only; do not change logic)
+    function showError(message) {
+      errorDiv.classList.remove("hidden");
+      const p = document.createElement("p");
+      p.textContent = "⚠️ " + message;
+      errorDiv.appendChild(p);
+    }
+
+    function clearErrors() {
+      errorDiv.innerHTML = "";
+      errorDiv.classList.add("hidden");
+    }
+
     // Gets the index of the first trading day of each year
     function getFirstTradingDayIndexes(candles) {
       const seenYears = new Set();
@@ -766,7 +466,7 @@
       return indexes;
     }
 
-    // Fetch data for a single stock
+    // Fetch data for a single stock (logic kept the same)
     async function fetchData(instrument_key, stock_symbol, down = 20, SMA_period = 200) {
       const todayDate = new Date().toISOString().split('T')[0];
       const urlIntra = `https://api.upstox.com/v3/historical-candle/intraday/${instrument_key}/days/1`;
@@ -814,19 +514,22 @@
         return data;
 
       } catch (error) {
+        // console still logs (devs can see full stack), UI shows friendly error
         console.error(`Error fetching ${stock_symbol}:`, error.message);
+        showError(`${stock_symbol}: ${error.message}`);
         return {};
       }
     }
 
-    // Main function to iterate through all stocks
+    // Main function to iterate through all stocks (logic unchanged)
     async function forEachStock(stockList, down, SMA_period) {
       const finalOutput = {};
-      const BATCH_SIZE = 50;
+      const BATCH_SIZE = 20;
 
       loadingDiv.classList.remove('hidden');
       tableBody.innerHTML = '';
       noDataMessageDiv.classList.add('hidden');
+      clearErrors(); // 🔴 Clear previous errors when a run starts (UI-only)
 
       for (let i = 0; i < stockList.length; i += BATCH_SIZE) {
         const batch = stockList.slice(i, i + BATCH_SIZE);
@@ -841,7 +544,7 @@
 
         await Promise.all(promises);
         console.log(`✅ Completed batch ${i / BATCH_SIZE + 1}`);
-        await sleep(1000);
+        await sleep(2000);
       }
 
       loadingDiv.classList.add('hidden');
@@ -899,6 +602,5 @@
     }
   </script>
 </body>
-
 
 </html>
