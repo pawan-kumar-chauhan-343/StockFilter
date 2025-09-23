@@ -2,633 +2,742 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upstox Stock Screener</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upstox Stock Screener</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #0f172a;
-      color: #e2e8f0;
-    }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
 
-    /* Custom animation for the ticker tape */
-    @keyframes ticker-scroll {
-      0% {
-        transform: translateX(100%);
-      }
+        /* Custom animation for the ticker tape */
+        @keyframes ticker-scroll {
+            0% {
+                transform: translateX(100%);
+            }
 
-      100% {
-        transform: translateX(-100%);
-      }
-    }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
 
-    .ticker-tape {
-      white-space: nowrap;
-      overflow: hidden;
-      box-sizing: border-box;
-      -webkit-mask-image: linear-gradient(90deg, transparent, #fff 20%, #fff 80%, transparent);
-      mask-image: linear-gradient(90deg, transparent, #fff 20%, #fff 80%, transparent);
-    }
+        .ticker-tape {
+            white-space: nowrap;
+            overflow: hidden;
+            box-sizing: border-box;
+            -webkit-mask-image: linear-gradient(90deg, transparent, #fff 20%, #fff 80%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #fff 20%, #fff 80%, transparent);
+        }
 
-    .ticker-tape div {
-      display: inline-block;
-      animation: ticker-scroll 25s linear infinite;
-    }
+        .ticker-tape div {
+            display: inline-block;
+            animation: ticker-scroll 25s linear infinite;
+        }
 
-    /* Custom styles for the table */
-    /* Adjusted padding and font size for a more compact look */
-    th,
-    td {
-      padding: 8px 12px;
-      font-size: 0.875rem;
-      /* text-sm */
-      text-align: left;
-      border-bottom: 1px solid #1e293b;
-    }
+        /* Custom styles for the table */
+        th,
+        td {
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            /* text-sm */
+            text-align: left;
+            border-bottom: 1px solid #1e293b;
+        }
 
-    /* Darker background for odd rows for readability */
-    tr:nth-child(odd) {
-      background-color: #1e293b;
-    }
+        /* Darker background for odd rows for readability */
+        tr:nth-child(odd) {
+            background-color: #1e293b;
+        }
 
-    /* Responsive table */
-    .table-container {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
+        /* Responsive table */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
 
-    /* Modal specific styles */
-    .modal {
-      background-color: rgba(0, 0, 0, 0.7);
-    }
+        /* Modal specific styles */
+        .modal {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
 
-    /* New styles for the 'Down from Top' column to make it red and bold */
-    .down-from-top {
-      color: #ef4444;
-      /* Tailwind's red-500 */
-      font-weight: 600;
-      /* semibold */
-    }
+        /* New styles for the 'Down from Top' column to make it red and bold */
+        .down-from-top {
+            color: #ef4444;
+            /* Tailwind's red-500 */
+            font-weight: 600;
+            /* semibold */
+        }
 
-    /* Custom styles for the table header to make it different */
-    .table-head-custom th {
-      background-color: #2a3a5a;
-      /* A darker blue for distinction */
-      color: #94a3b8;
-      /* A lighter grey for contrast */
-      font-weight: 600;
-      /* semibold */
-    }
-    
-    /* Responsive YouTube video styles */
-    .video-container {
-      position: relative;
-      width: 100%;
-      padding-top: 56.25%; /* 16:9 Aspect Ratio */
-      margin-top: 2rem;
-      border-radius: 12px;
-      overflow: hidden;
-    }
+        /* Custom styles for the table header to make it different */
+        .table-head-custom th {
+            background-color: #2a3a5a;
+            /* A darker blue for distinction */
+            color: #94a3b8;
+            /* A lighter grey for contrast */
+            font-weight: 600;
+            /* semibold */
+        }
 
-    .video-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      max-width:800px;
-      max-height: 450px
-      
-    }
-  </style>
+        /* Responsive YouTube video styles */
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            /* 16:9 Aspect Ratio */
+            margin-top: 2rem;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            max-width: 800px;
+            max-height: 450px
+        }
+    </style>
 </head>
 
 <body class="antialiased flex flex-col min-h-screen bg-slate-950">
-  <header class="bg-slate-800 shadow-xl p-2 md:p-4 sticky top-0 z-50">
-    <div class="ticker-tape font-mono text-xs md:text-sm text-yellow-300">
-      <div>
-        <button id="donateBtn" class="mx-4 md:mx-6 hover:underline transition-all">
-          <span class="text-orange-400">💰</span> Donate via UPI
-        </button>
-        <a href="https://zerodha.com/open-account?c=XCK853" target="_blank" class="mx-4 md:mx-6 hover:underline transition-all">
-          <img id="ZerodhaLogo" src="https://placehold.co/25x25/FC3E14/FFFFFF?text=K" alt="Zerodha Logo"
-            class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
-          <span>
-            Open Demat Account <b><i class="text-orange-600">Zerodha</i></b>
-          </span>
-        </a>
-        <a href="https://join.dhan.co/?invite=MJXCH55865" target="_blank" class="mx-4 md:mx-6 hover:underline transition-all">
-          <img id="dhanLogo" src="https://placehold.co/25x25/22c55e/FFFFFF?text=D" alt="Dhan Logo"
-            class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
-          <span>
-            Open Demat Account <b><i class="text-green-500">Dhan</i></b>
-          </span>
-        </a>
-        <a href="https://upstox.onelink.me/0H1s/3SCVP2" target="_blank" class="mx-4 md:mx-6 hover:underline transition-all">
-          <img id="upstoxLogo" src="https://placehold.co/25x25/a855f7/FFFFFF?text=U" alt="Upstox Logo"
-            class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
-          <span>Open Demat Account <b><i class="text-fuchsia-500">Upstox</i></b> </span>
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <main id="main" class="flex-grow container mx-auto px-2 md:px-4 py-4 md:py-8">
-    <div class="flex flex-col w-full md:w-auto">
-
-      <button id="showStocksBtn"
-        class="mt-4 md:mt-0 px-8 py-2 bg-slate-700 text-white rounded-xl font-semibold hover:bg-slate-600 transition-all duration-300 flex items-center justify-center gap-2 w-full md:w-64 shadow-md hover:shadow-lg transform hover:scale-105 text-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-          <path
-            d="M2 5a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V5zM4 9a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2v-6a2 2 0 00-2-2H4z" />
-        </svg>
-        Show All Stocks
-      </button>
-    </div>
-    <h1 class="text-3xl md:text-5xl font-extrabold text-center text-blue-400 mb-4 md:mb-6 drop-shadow-lg">
-      Stock Screener
-    </h1>
-
-    <p class="text-sm md:text-lg text-center text-slate-400 mb-6 md:mb-8">
-      Find potential investment opportunities with a custom stock filter.
-    </p>
-
-    <div
-      class="bg-slate-800 rounded-2xl shadow-2xl p-4 md:p-6 mb-4 flex flex-col md:flex-row items-end justify-evenly gap-3 transition-all duration-300">
-      <div class="flex flex-col w-full">
-        <label for="down" class="text-xs font-medium mb-1 text-slate-400">Down % from Top:</label>
-        <input type="number" id="down" value="20" min="0" max="100" step="1"
-          class="bg-slate-700 text-white rounded-xl p-2 w-full md:w-28 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
-      </div>
-      <div class="flex flex-col w-full">
-        <label for="sma" class="text-xs font-medium mb-1 text-slate-400">SMA Period:</label>
-        <input type="number" id="sma" value="200" min="1" step="1"
-          class="bg-slate-700 text-white rounded-xl p-2 w-full md:w-28 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
-      </div>
-      <div class="flex flex-col w-full md:w-auto">
-        <label for="fetchBtn" class="text-sm font-medium mb-1 text-slate-400 opacity-0 select-none">Submit
-          Button</label>
-        <button id="fetchBtn"
-          class="px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all duration-300 shadow-md hover:shadow-lg w-full md:w-auto transform hover:scale-105 text-sm">
-          Submit
-        </button>
-      </div>
-    </div>
-
-    <!-- ALL STOCKS MODAL -->
-    <div id="allStockName"
-      class="hidden fixed inset-0 z-50 bg-slate-900 bg-opacity-95 p-6 overflow-y-auto transition-all duration-300">
-      <div class="ticker-tape font-mono text-xs md:text-sm text-yellow-300 mb-4 md:mb-6">
-        <div>
-          <button id="donateBtnModal" class="mx-4 md:mx-6 hover:underline transition-all">
-            <span class="text-orange-400">💰</span> Donate via UPI
-          </button>
-          <a href="https://zerodha.com/open-account?c=XCK853" target="_blank" class="mx-4 md:mx-6 hover:underline transition-all">
-            <img src="https://placehold.co/25x25/FC3E14/FFFFFF?text=K" alt="Zerodha Logo"
-              class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
-            <span>Open Demat Account <b><i class="text-orange-600">Zerodha-Kite</i></b></span>
-          </a>
-          <a href="https://join.dhan.co/?invite=MJXCH55865" target="_blank" class="mx-4 md:mx-6 hover:underline transition-all">
-            <img src="https://placehold.co/25x25/22c55e/FFFFFF?text=D" alt="Dhan Logo"
-              class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
-            <span>Open Demat Account <b><i class="text-green-500">Dhan</i></b></span>
-          </a>
-          <a href="https://upstox.onelink.me/0H1s/3SCVP2" target="_blank" class="mx-4 md:mx-6 hover:underline transition-all">
-            <img src="https://placehold.co/25x25/a855f7/FFFFFF?text=U" alt="Upstox Logo"
-              class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
-            <span>Open Demat Account <b><i class="text-fuchsia-500">Upstox</i></b> </span>
-          </a>
+    <header class="bg-slate-800 shadow-xl p-2 md:p-4 sticky top-0 z-50">
+        <div class="ticker-tape font-mono text-xs md:text-sm text-yellow-300">
+            <div>
+                <button id="donateBtn" class="mx-4 md:mx-6 hover:underline transition-all">
+                    <span class="text-orange-400">💰</span> Donate via UPI
+                </button>
+                <a href="https://zerodha.com/open-account?c=XCK853" target="_blank"
+                    class="mx-4 md:mx-6 hover:underline transition-all">
+                    <img id="ZerodhaLogo" src="https://placehold.co/25x25/FC3E14/FFFFFF?text=K" alt="Zerodha Logo"
+                        class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
+                    <span>
+                        Open Demat Account <b><i class="text-orange-600">Zerodha</i></b>
+                    </span>
+                </a>
+                <a href="https://join.dhan.co/?invite=MJXCH55865" target="_blank"
+                    class="mx-4 md:mx-6 hover:underline transition-all">
+                    <img id="dhanLogo" src="https://placehold.co/25x25/22c55e/FFFFFF?text=D" alt="Dhan Logo"
+                        class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
+                    <span>
+                        Open Demat Account <b><i class="text-green-500">Dhan</i></b>
+                    </span>
+                </a>
+                <a href="https://upstox.onelink.me/0H1s/3SCVP2" target="_blank"
+                    class="mx-4 md:mx-6 hover:underline transition-all">
+                    <img id="upstoxLogo" src="https://placehold.co/25x25/a855f7/FFFFFF?text=U" alt="Upstox Logo"
+                        class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
+                    <span>Open Demat Account <b><i class="text-fuchsia-500">Upstox</i></b> </span>
+                </a>
+            </div>
         </div>
-      </div>
-      <div class="flex justify-between items-center mb-4 md:mb-6">
-        <h2 class="text-2xl md:text-3xl font-bold text-blue-400">All Available Stocks</h2>
-        <button id="closeStocksBtn" class="text-white hover:text-red-500 transition-all">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-      <div id="stockListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-      </div>
+    </header>
+
+    <main id="main" class="flex-grow container mx-auto px-2 md:px-4 py-4 md:py-8">
+        <div class="flex flex-col md:flex-row items-center justify-between w-full md:w-auto">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-center text-blue-400 mb-4 md:mb-6 drop-shadow-lg">
+                Stock Screener
+            </h1>
+            <button id="selectStocksBtn"
+                class="mt-4 md:mt-0 px-8 py-2 bg-slate-700 text-white rounded-xl font-semibold hover:bg-slate-600 transition-all duration-300 flex items-center justify-center gap-2 w-full md:w-64 shadow-md hover:shadow-lg transform hover:scale-105 text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                        d="M2 5a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V5zM4 9a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2v-6a2 2 0 00-2-2H4z" />
+                </svg>
+                Select Stocks
+            </button>
+        </div>
+
+        <p class="text-sm md:text-lg text-center text-slate-400 mb-6 md:mb-8">
+            Find potential investment opportunities with a custom stock filter.
+        </p>
+
+        <div
+            class="bg-slate-800 rounded-2xl shadow-2xl p-4 md:p-6 mb-4 flex flex-col md:flex-row items-end justify-evenly gap-3 transition-all duration-300">
+            <div class="flex flex-col w-full">
+                <label for="down" class="text-xs font-medium mb-1 text-slate-400">Down % from Top:</label>
+                <input type="number" id="down" value="20" min="0" max="100" step="1"
+                    class="bg-slate-700 text-white rounded-xl p-2 w-full md:w-28 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+            </div>
+            <div class="flex flex-col w-full">
+                <label for="sma" class="text-xs font-medium mb-1 text-slate-400">SMA Period:</label>
+                <input type="number" id="sma" value="200" min="1" step="1"
+                    class="bg-slate-700 text-white rounded-xl p-2 w-full md:w-28 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+            </div>
+            <div class="flex flex-col w-full md:w-auto">
+                <label for="fetchBtn" class="text-sm font-medium mb-1 text-slate-400 opacity-0 select-none">Submit
+                    Button</label>
+                <button id="fetchBtn"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all duration-300 shadow-md hover:shadow-lg w-full md:w-auto transform hover:scale-105 text-sm">
+                    Submit
+                </button>
+            </div>
+        </div>
+
+        <!-- ALL STOCKS MODAL -->
+        <div id="allStockName"
+            class="hidden fixed inset-0 z-50 bg-slate-900 bg-opacity-95 p-6 overflow-y-auto transition-all duration-300">
+            <div class="ticker-tape font-mono text-xs md:text-sm text-yellow-300 mb-4 md:mb-6">
+                <div>
+                    <button id="donateBtnModal" class="mx-4 md:mx-6 hover:underline transition-all">
+                        <span class="text-orange-400">💰</span> Donate via UPI
+                    </button>
+                    <a href="https://zerodha.com/open-account?c=XCK853" target="_blank"
+                        class="mx-4 md:mx-6 hover:underline transition-all">
+                        <img src="https://placehold.co/25x25/FC3E14/FFFFFF?text=K" alt="Zerodha Logo"
+                            class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
+                        <span>Open Demat Account <b><i class="text-orange-600">Zerodha-Kite</i></b></span>
+                    </a>
+                    <a href="https://join.dhan.co/?invite=MJXCH55865" target="_blank"
+                        class="mx-4 md:mx-6 hover:underline transition-all">
+                        <img src="https://placehold.co/25x25/22c55e/FFFFFF?text=D" alt="Dhan Logo"
+                            class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
+                        <span>Open Demat Account <b><i class="text-green-500">Dhan</i></b></span>
+                    </a>
+                    <a href="https://upstox.onelink.me/0H1s/3SCVP2" target="_blank"
+                        class="mx-4 md:mx-6 hover:underline transition-all">
+                        <img src="https://placehold.co/25x25/a855f7/FFFFFF?text=U" alt="Upstox Logo"
+                            class="w-4 h-4 md:w-5 md:h-5 rounded mr-1 inline-block">
+                        <span>Open Demat Account <b><i class="text-fuchsia-500">Upstox</i></b> </span>
+                    </a>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row justify-between items-center mb-4 md:mb-6 sticky top-0 bg-slate-900 py-2">
+                <h2 class="text-2xl md:text-3xl font-bold text-blue-400 mb-2 md:mb-0">Select Stocks</h2>
+                <div class="flex items-center gap-4 w-full md:w-auto">
+                    <input type="text" id="stockSearchInput" placeholder="Search stocks..."
+                        class="flex-grow md:flex-none bg-slate-700 text-white rounded-xl p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    <span id="stockCount" class="text-sm text-slate-400">0/50 selected</span>
+                    <button id="closeStocksBtn" class="text-white hover:text-red-500 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="stockListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                <!-- Stock list populated here -->
+            </div>
+        </div>
+
+        <!-- Custom message box for alerts -->
+        <div id="messageModal"
+            class="hidden modal fixed inset-0 z-[101] flex items-center justify-center p-4 transition-opacity duration-300">
+            <div
+                class="bg-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-sm relative transform scale-95 opacity-0 transition-all duration-300">
+                <button id="closeMessageModalBtn" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div class="text-center">
+                    <p id="messageModalText" class="text-sm md:text-lg text-white font-semibold"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full text-center mb-6 md:mb-8">
+            <p class="text-xs md:text-sm italic text-slate-400">
+                <span class="font-bold text-red-400 mr-1">Disclaimer:</span> Data shown is for informational purposes
+                only and
+                does not constitute financial advice.
+            </p>
+        </div>
+
+        <div class="table-container bg-slate-800 rounded-xl shadow-xl">
+            <table id="table" class="w-full">
+                <thead id="tableHead" class="text-slate-400 uppercase text-xs table-head-custom">
+                </thead>
+                <tbody id="tableBody" class="text-sm">
+                </tbody>
+            </table>
+            <div id="noDataMessage" class="hidden p-4 text-center text-slate-400 italic text-sm">
+                No stocks found matching the criteria.
+            </div>
+            <div id="loading" class="hidden p-4 text-center text-blue-400 animate-pulse text-sm">
+                Fetching data... please wait.
+            </div>
+            <!-- Error messages (UI-only) -->
+            <div id="errorMessage" class="hidden p-4 text-center text-red-400 italic text-sm"></div>
+        </div>
+        <div class="video-container">
+            <iframe src="https://www.youtube-nocookie.com/embed/CrQfUXBHo3I?si=T4oL3p1E8ujfEXzC"
+                title="YouTube video player" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen></iframe>
+        </div>
+    </main>
+
+    <footer id="footer" class="text-center p-4 text-xs md:text-sm text-slate-500 mt-4 md:mt-8 border-t border-slate-700">
+        <p><span class="font-bold text-red-400 mr-1">Disclaimer:</span> The following data is provided for informational
+            and research purposes only. It represents historical and current stock price information and does not
+            constitute financial advice or a recommendation to buy, sell, or hold any stock. Please consult with a
+            licensed financial advisor before making investment decisions. The website owner is not responsible for any
+            financial losses arising from the use of this information.</p>
+    </footer>
+
+    <div id="upiModal"
+        class="hidden modal fixed inset-0 z-[100] flex items-center justify-center p-4 transition-opacity duration-300">
+        <div
+            class="bg-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-sm relative transform scale-95 opacity-0 transition-all duration-300">
+            <button id="closeUpiModalBtn" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h3 class="text-xl md:text-2xl font-bold text-center text-blue-400 mb-4 md:mb-6">Scan to Donate</h3>
+            <div class="text-center">
+                <img id="upiQrCode" src="UPI.jpg" alt="UPI QR Code"
+                    class="rounded-lg shadow-lg mx-auto mb-4 w-48 h-48 md:w-auto md:h-auto">
+                <p class="text-slate-400 text-xs md:text-sm">Thank you for your support!</p>
+            </div>
+        </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <div class="w-full text-center mb-6 md:mb-8">
-      <p class="text-xs md:text-sm italic text-slate-400">
-        <span class="font-bold text-red-400 mr-1">Disclaimer:</span> Data shown is for informational purposes
-        only and
-        does not constitute financial advice.
-      </p>
-    </div>
-
-    <div class="table-container bg-slate-800 rounded-xl shadow-xl">
-      <table id="table" class="w-full">
-        <thead id="tableHead" class="text-slate-400 uppercase text-xs table-head-custom">
-        </thead>
-        <tbody id="tableBody" class="text-sm">
-        </tbody>
-      </table>
-      <div id="noDataMessage" class="hidden p-4 text-center text-slate-400 italic text-sm">
-        No stocks found matching the criteria.
-      </div>
-      <div id="loading" class="hidden p-4 text-center text-blue-400 animate-pulse text-sm">
-        Fetching data... please wait.
-      </div>
-      <!-- Error messages (UI-only) -->
-      <div id="errorMessage" class="hidden p-4 text-center text-red-400 italic text-sm"></div>
-    </div>
-    
-    <!-- Video container with new classes for responsiveness -->
-    <div class="video-container">
-       <iframe src="https://www.youtube-nocookie.com/embed/CrQfUXBHo3I?si=T4oL3p1E8ujfEXzC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"  allowfullscreen></iframe>
-    </div>
-
-  </main>
-
-  <footer id="footer" class="text-center p-4 text-xs md:text-sm text-slate-500 mt-4 md:mt-8 border-t border-slate-700">
-    <p><span class="font-bold text-red-400 mr-1">Disclaimer:</span> The following data is provided for informational
-      and research purposes only. It represents historical and current stock price information and does not constitute
-      financial advice or a recommendation to buy, sell, or hold any stock. Please consult with a licensed
-      financial advisor before making investment decisions. The website owner is not responsible for any financial
-      losses
-      arising from the use of this information.</p>
-  </footer>
-
-  <div id="upiModal"
-    class="hidden modal fixed inset-0 z-[100] flex items-center justify-center p-4 transition-opacity duration-300">
-    <div
-      class="bg-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-sm relative transform scale-95 opacity-0 transition-all duration-300">
-      <button id="closeUpiModalBtn" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-      <h3 class="text-xl md:text-2xl font-bold text-center text-blue-400 mb-4 md:mb-6">Scan to Donate</h3>
-      <div class="text-center">
-        <img id="upiQrCode" src="UPI.jpg" alt="UPI QR Code"
-          class="rounded-lg shadow-lg mx-auto mb-4 w-48 h-48 md:w-auto md:h-auto">
-        <p class="text-slate-400 text-xs md:text-sm">Thank you for your support!</p>
-      </div>
-    </div>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-  <script>
-    // Data provided by the user (kept exactly as before)
-    const stockList = [
-      ["NSE_EQ|INE397D01024", "BHARTIARTL", "Bharti Airtel"],
-      ["NSE_EQ|INE118H01025", "BSE", "BSE"],
-      ["NSE_EQ|INE009A01021", "INFY", "Infosys"],
-      ["NSE_EQ|INE467B01029", "TCS", "Tata Consultancy Services"],
-      ["NSE_EQ|INE002A01018", "RELIANCE", "Reliance Industries"],
-      ["NSE_EQ|INE674K01013", "ABCAPITAL", "Aditya Birla Capital"],
-      ["NSE_EQ|INE012A01025", "ACC", "ACC"],
-      ["NSE_EQ|INE423A01024", "ADANIENT", "Adani Enterprises"],
-      ["NSE_EQ|INE364U01010", "ADANIGREEN", "Adani Green Energy"],
-      ["NSE_EQ|INE742F01042", "ADANIPORTS", "Adani Ports and SEZ"],
-      ["NSE_EQ|INE540L01014", "ALKEM", "Alkem Laboratories"],
-      ["NSE_EQ|INE079A01024", "AMBUJACEM", "Ambuja Cements"],
-      ["NSE_EQ|INE732I01013", "ANGELONE", "Angel One"],
-      ["NSE_EQ|INE702C01027", "APLAPOLLO", "APL Apollo Tubes"],
-      ["NSE_EQ|INE208A01029", "ASHOKLEY", "Ashok Leyland"],
-      ["NSE_EQ|INE021A01026", "ASIANPAINT", "Asian Paints"],
-      ["NSE_EQ|INE006I01046", "ASTRAL", "Astral"],
-      ["NSE_EQ|INE949L01017", "AUBANK", "AU Small Finance Bank"],
-      ["NSE_EQ|INE238A01034", "AXISBANK", "Axis Bank"],
-      ["NSE_EQ|INE918I01026", "BAJAJFINSV", "Bajaj Finserv"],
-      ["NSE_EQ|INE296A01032", "BAJFINANCE", "Bajaj Finance"],
-      ["NSE_EQ|INE263A01024", "BEL", "Bharat Electronics"],
-      ["NSE_EQ|INE465A01025", "BHARATFORG", "Bharat Forge"],
-      ["NSE_EQ|INE257A01026", "BHEL", "BHEL"],
-      ["NSE_EQ|INE472A01039", "BLUESTARCO", "Blue Star"],
-      ["NSE_EQ|INE029A01011", "BPCL", "BPCL"],
-      ["NSE_EQ|INE596I01012", "CAMS", "CAMS"],
-      ["NSE_EQ|INE476A01022", "CANBK", "Canara Bank"],
-      ["NSE_EQ|INE736A01011", "CDSL", "CDSL"],
-      ["NSE_EQ|INE067A01029", "CGPOWER", "CG Power"],
-      ["NSE_EQ|INE121A01024", "CHOLAFIN", "Cholamandalam Investment"],
-      ["NSE_EQ|INE059A01026", "CIPLA", "Cipla"],
-      ["NSE_EQ|INE591G01025", "COFORGE", "Coforge"],
-      ["NSE_EQ|INE259A01022", "COLPAL", "Colgate Palmolive India"],
-      ["NSE_EQ|INE111A01025", "CONCOR", "Container Corporation"],
-      ["NSE_EQ|INE298A01020", "CUMMINSIND", "Cummins India"],
-      ["NSE_EQ|INE136B01020", "CYIENT", "Cyient"],
-      ["NSE_EQ|INE016A01026", "DABUR", "Dabur India"],
-      ["NSE_EQ|INE192R01011", "DMART", "Avenue Supermarts (DMart)"],
-      ["NSE_EQ|INE089A01031", "DRREDDY", "Dr Reddy's Labs"],
-      ["NSE_EQ|INE302A01020", "EXIDEIND", "Exide Industries"],
-      ["NSE_EQ|INE061F01013", "FORTIS", "Fortis Healthcare"],
-      ["NSE_EQ|INE102D01028", "GODREJCP", "Godrej Consumer Products"],
-      ["NSE_EQ|INE484J01027", "GODREJPROP", "Godrej Properties"],
-      ["NSE_EQ|INE047A01021", "GRASIM", "Grasim Industries"],
-      ["NSE_EQ|INE066F01020", "HAL", "Hindustan Aeronautics"],
-      ["NSE_EQ|INE176B01034", "HAVELLS", "Havells India"],
-      ["NSE_EQ|INE860A01027", "HCLTECH", "HCL Technologies"],
-      ["NSE_EQ|INE040A01034", "HDFCBANK", "HDFC Bank"],
-      ["NSE_EQ|INE795G01014", "HDFCLIFE", "HDFC Life"],
-      ["NSE_EQ|INE158A01026", "HEROMOTOCO", "Hero MotoCorp"],
-      ["NSE_EQ|INE030A01027", "HINDUNILVR", "HUL"],
-      ["NSE_EQ|INE090A01021", "ICICIBANK", "ICICI Bank"],
-      ["NSE_EQ|INE726G01019", "ICICIPRULI", "ICICI Prudential Life"],
-      ["NSE_EQ|INE022Q01020", "IEX", "Indian Energy Exchange"],
-      ["NSE_EQ|INE203G01027", "IGL", "Indraprastha Gas"],
-      ["NSE_EQ|INE053A01029", "INDHOTEL", "Indian Hotels (Taj)"],
-      ["NSE_EQ|INE095A01012", "INDUSINDBK", "IndusInd Bank"],
-      ["NSE_EQ|INE335Y01020", "IRCTC", "IRCTC"],
-      ["NSE_EQ|INE202E01016", "IREDA", "IREDA"],
-      ["NSE_EQ|INE154A01025", "ITC", "ITC"],
-      ["NSE_EQ|INE749A01030", "JINDALSTEL", "Jindal Steel & Power"],
-      ["NSE_EQ|INE220G01021", "JSL", "Jindal Stainless"],
-      ["NSE_EQ|INE121E01018", "JSWENERGY", "JSW Energy"],
-      ["NSE_EQ|INE019A01038", "JSWSTEEL", "JSW Steel"],
-      ["NSE_EQ|INE878B01027", "KEI", "KEI Industries"],
-      ["NSE_EQ|INE237A01028", "KOTAKBANK", "Kotak Mahindra Bank"],
-      ["NSE_EQ|INE04I401011", "KPITTECH", "KPIT Technologies"],
-      ["NSE_EQ|INE0J1Y01017", "LICI", "Life Insurance Corporation of India"],
-      ["NSE_EQ|INE018A01030", "LT", "Larsen & Toubro"],
-      ["NSE_EQ|INE326A01037", "LUPIN", "Lupin"],
-      ["NSE_EQ|INE101A01026", "M&M", "Mahindra & Mahindra"],
-      ["NSE_EQ|INE774D01024", "M&MFIN", "M&M Financial Services"],
-      ["NSE_EQ|INE634S01028", "MANKIND", "Mankind Pharma"],
-      ["NSE_EQ|INE196A01026", "MARICO", "Marico"],
-      ["NSE_EQ|INE027H01010", "MAXHEALTH", "Max Healthcare"],
-      ["NSE_EQ|INE249Z01020", "MAZDOCK", "Mazagon Dock Shipbuilders"],
-      ["NSE_EQ|INE356A01018", "MPHASIS", "Mphasis"],
-      ["NSE_EQ|INE663F01032", "NAUKRI", "Info Edge (India)"],
-      ["NSE_EQ|INE239A01024", "NESTLEIND", "Nestle India"],
-      ["NSE_EQ|INE733E01010", "NTPC", "NTPC"],
-      ["NSE_EQ|INE093I01010", "OBEROIRLTY", "Oberoi Realty"],
-      ["NSE_EQ|INE213A01029", "ONGC", "ONGC"],
-      ["NSE_EQ|INE603J01030", "PIIND", "PI Industries"],
-      ["NSE_EQ|INE318A01026", "PIDILITIND", "Pidilite Industries"],
-      ["NSE_EQ|INE752E01010", "POWERGRID", "Power Grid Corporation"],
-      ["NSE_EQ|INE020B01018", "RECLTD", "REC"],
-      ["NSE_EQ|INE415G01027", "RVNL", "Rail Vikas Nigam"],
-      ["NSE_EQ|INE018E01016", "SBICARD", "SBI Cards"],
-      ["NSE_EQ|INE123W01016", "SBILIFE", "SBI Life Insurance"],
-      ["NSE_EQ|INE062A01020", "SBIN", "State Bank of India"],
-      ["NSE_EQ|INE721A01047", "SHRIRAMFIN", "Shriram Finance"],
-      ["NSE_EQ|INE003A01024", "SIEMENS", "Siemens"],
-      ["NSE_EQ|INE647A01010", "SRF", "SRF"],
-      ["NSE_EQ|INE044A01036", "SUNPHARMA", "Sun Pharma"],
-      ["NSE_EQ|INE195A01028", "SUPREMEIND", "Supreme Industries"],
-      ["NSE_EQ|INE398R01022", "SYNGENE", "Syngene International"],
-      ["NSE_EQ|INE192A01025", "TATACONSUM", "Tata Consumer Products"],
-      ["NSE_EQ|INE155A01022", "TATAMOTORS", "Tata Motors"],
-      ["NSE_EQ|INE245A01021", "TATAPOWER", "Tata Power"],
-      ["NSE_EQ|INE081A01020", "TATASTEEL", "Tata Steel"],
-      ["NSE_EQ|INE142M01025", "TATATECH", "Tata Technologies"],
-      ["NSE_EQ|INE669C01036", "TECHM", "Tech Mahindra"],
-      ["NSE_EQ|INE280A01028", "TITAN", "Titan Company"],
-      ["NSE_EQ|INE685A01028", "TORNTPHARM", "Torrent Pharma"],
-      ["NSE_EQ|INE494B01023", "TVSMOTOR", "TVS Motor"],
-      ["NSE_EQ|INE405E01023", "UNOMINDA", "UNO Minda"],
-      ["NSE_EQ|INE628A01036", "UPL", "UPL"],
-      ["NSE_EQ|INE200M01039", "VBL", "Varun Beverages"],
-      ["NSE_EQ|INE226A01021", "VOLTAS", "Voltas"],
-      ["NSE_EQ|INE075A01022", "WIPRO", "Wipro"],
-      ["NSE_EQ|INE010B01027", "ZYDUSLIFE", "Zydus Lifesciences"]
-    ];
-
-
-    // UI elements
-    const allStockNameDiv = document.getElementById("allStockName");
-    const showStocksBtn = document.getElementById("showStocksBtn");
-    const closeStocksBtn = document.getElementById("closeStocksBtn");
-    const stockListContainer = document.getElementById("stockListContainer");
-    const fetchBtn = document.getElementById('fetchBtn');
-    const tableBody = document.getElementById('tableBody');
-    const tableHead = document.getElementById('tableHead');
-    const loadingDiv = document.getElementById('loading');
-    const noDataMessageDiv = document.getElementById('noDataMessage');
-    const donateBtn = document.getElementById('donateBtn');
-    const donateBtnModal = document.getElementById('donateBtnModal');
-    const upiModal = document.getElementById('upiModal');
-    const upiModalContent = upiModal.querySelector("div");
-    const closeUpiModalBtn = document.getElementById('closeUpiModalBtn');
-    const errorDiv = document.getElementById("errorMessage");
-
-    // Populate the hidden stock list on page load (unchanged logic)
-    function populateAllStocks() {
-      stockListContainer.innerHTML = '';
-      for (let stock of stockList) {
-        const stockName = stock[2];
-        const item = document.createElement("div");
-        item.className = "bg-slate-700 text-slate-300 p-2 rounded-xl shadow-sm hover:bg-slate-600 transition-colors cursor-pointer text-sm";
-        item.textContent = stockName;
-        stockListContainer.appendChild(item);
-      }
-    }
-    populateAllStocks();
-
-    // Toggle the visibility of the all-stocks div
-    function toggleAllStocks() {
-      // Auto-clear errors when user opens/closes stock list (UI-only)
-      clearErrors();
-      allStockNameDiv.classList.toggle('hidden');
-    }
-
-    showStocksBtn.addEventListener('click', toggleAllStocks);
-    closeStocksBtn.addEventListener('click', toggleAllStocks);
-
-    // UPI modal functionality
-    function showUpiModal() {
-      upiModal.classList.remove('hidden');
-      setTimeout(() => {
-        upiModalContent.classList.remove('scale-95', 'opacity-0');
-      }, 10);
-    }
-
-    function hideUpiModal() {
-      upiModalContent.classList.add('scale-95', 'opacity-0');
-      setTimeout(() => {
-        upiModal.classList.add('hidden');
-      }, 300);
-    }
-
-    donateBtn.addEventListener('click', showUpiModal);
-    donateBtnModal.addEventListener('click', showUpiModal);
-    closeUpiModalBtn.addEventListener('click', hideUpiModal);
-
-    // Close modal when clicking outside of it
-    upiModal.addEventListener('click', (e) => {
-      if (e.target === upiModal) {
-        hideUpiModal();
-      }
-    });
-
-    // Helper function for rate limiting API calls
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    // Error UI helpers (UI-only; do not change logic)
-    function showError(message) {
-      errorDiv.classList.remove("hidden");
-      const p = document.createElement("p");
-      p.textContent = "⚠️ " + message;
-      errorDiv.appendChild(p);
-    }
-
-    function clearErrors() {
-      errorDiv.innerHTML = "";
-      errorDiv.classList.add("hidden");
-    }
-
-    // Gets the index of the first trading day of each year
-    function getFirstTradingDayIndexes(candles) {
-      const seenYears = new Set();
-      const indexes = {};
-      for (let i = candles.length - 1; i >= 0; i--) {
-        const dateStr = candles[i][0];
-        const year = new Date(dateStr).getFullYear();
-        if (!seenYears.has(year)) {
-          seenYears.add(year);
-          indexes[year] = i;
-        }
-      }
-      return indexes;
-    }
-
-    // Fetch data for a single stock (logic kept the same)
-    async function fetchData(instrument_key, stock_symbol, down = 20, SMA_period = 200) {
-      const todayDate = new Date().toISOString().split('T')[0];
-      const urlIntra = `https://api.upstox.com/v3/historical-candle/intraday/${instrument_key}/days/1`;
-      const urlHistory = `https://api.upstox.com/v3/historical-candle/${instrument_key}/days/1/${todayDate}/2020-01-01`;
-      const headers = {
-        'Accept': 'application/json'
-      };
-
-      try {
-        const [responseHist, responseIntra] = await Promise.all([
-          axios.get(urlHistory, {
-            headers
-          }),
-          axios.get(urlIntra, {
-            headers
-          })
-        ]);
-
-        let candles = [
-          ...responseIntra.data.data.candles,
-          ...responseHist.data.data.candles
+    <script>
+        // Data provided by the user (kept exactly as before)
+        const stockList = [
+            ["NSE_EQ|INE397D01024", "BHARTIARTL", "Bharti Airtel"],
+            ["NSE_EQ|INE118H01025", "BSE", "BSE"],
+            ["NSE_EQ|INE009A01021", "INFY", "Infosys"],
+            ["NSE_EQ|INE467B01029", "TCS", "Tata Consultancy Services"],
+            ["NSE_EQ|INE002A01018", "RELIANCE", "Reliance Industries"],
+            ["NSE_EQ|INE674K01013", "ABCAPITAL", "Aditya Birla Capital"],
+            ["NSE_EQ|INE012A01025", "ACC", "ACC"],
+            ["NSE_EQ|INE423A01024", "ADANIENT", "Adani Enterprises"],
+            ["NSE_EQ|INE364U01010", "ADANIGREEN", "Adani Green Energy"],
+            ["NSE_EQ|INE742F01042", "ADANIPORTS", "Adani Ports and SEZ"],
+            ["NSE_EQ|INE540L01014", "ALKEM", "Alkem Laboratories"],
+            ["NSE_EQ|INE079A01024", "AMBUJACEM", "Ambuja Cements"],
+            ["NSE_EQ|INE732I01013", "ANGELONE", "Angel One"],
+            ["NSE_EQ|INE702C01027", "APLAPOLLO", "APL Apollo Tubes"],
+            ["NSE_EQ|INE208A01029", "ASHOKLEY", "Ashok Leyland"],
+            ["NSE_EQ|INE021A01026", "ASIANPAINT", "Asian Paints"],
+            ["NSE_EQ|INE006I01046", "ASTRAL", "Astral"],
+            ["NSE_EQ|INE949L01017", "AUBANK", "AU Small Finance Bank"],
+            ["NSE_EQ|INE238A01034", "AXISBANK", "Axis Bank"],
+            ["NSE_EQ|INE918I01026", "BAJAJFINSV", "Bajaj Finserv"],
+            ["NSE_EQ|INE296A01032", "BAJFINANCE", "Bajaj Finance"],
+            ["NSE_EQ|INE263A01024", "BEL", "Bharat Electronics"],
+            ["NSE_EQ|INE465A01025", "BHARATFORG", "Bharat Forge"],
+            ["NSE_EQ|INE257A01026", "BHEL", "BHEL"],
+            ["NSE_EQ|INE472A01039", "BLUESTARCO", "Blue Star"],
+            ["NSE_EQ|INE029A01011", "BPCL", "BPCL"],
+            ["NSE_EQ|INE596I01012", "CAMS", "CAMS"],
+            ["NSE_EQ|INE476A01022", "CANBK", "Canara Bank"],
+            ["NSE_EQ|INE736A01011", "CDSL", "CDSL"],
+            ["NSE_EQ|INE067A01029", "CGPOWER", "CG Power"],
+            ["NSE_EQ|INE121A01024", "CHOLAFIN", "Cholamandalam Investment"],
+            ["NSE_EQ|INE059A01026", "CIPLA", "Cipla"],
+            ["NSE_EQ|INE591G01025", "COFORGE", "Coforge"],
+            ["NSE_EQ|INE259A01022", "COLPAL", "Colgate Palmolive India"],
+            ["NSE_EQ|INE111A01025", "CONCOR", "Container Corporation"],
+            ["NSE_EQ|INE298A01020", "CUMMINSIND", "Cummins India"],
+            ["NSE_EQ|INE136B01020", "CYIENT", "Cyient"],
+            ["NSE_EQ|INE016A01026", "DABUR", "Dabur India"],
+            ["NSE_EQ|INE192R01011", "DMART", "Avenue Supermarts (DMart)"],
+            ["NSE_EQ|INE089A01031", "DRREDDY", "Dr Reddy's Labs"],
+            ["NSE_EQ|INE302A01020", "EXIDEIND", "Exide Industries"],
+            ["NSE_EQ|INE061F01013", "FORTIS", "Fortis Healthcare"],
+            ["NSE_EQ|INE102D01028", "GODREJCP", "Godrej Consumer Products"],
+            ["NSE_EQ|INE484J01027", "GODREJPROP", "Godrej Properties"],
+            ["NSE_EQ|INE047A01021", "GRASIM", "Grasim Industries"],
+            ["NSE_EQ|INE066F01020", "HAL", "Hindustan Aeronautics"],
+            ["NSE_EQ|INE176B01034", "HAVELLS", "Havells India"],
+            ["NSE_EQ|INE860A01027", "HCLTECH", "HCL Technologies"],
+            ["NSE_EQ|INE040A01034", "HDFCBANK", "HDFC Bank"],
+            ["NSE_EQ|INE795G01014", "HDFCLIFE", "HDFC Life"],
+            ["NSE_EQ|INE158A01026", "HEROMOTOCO", "Hero MotoCorp"],
+            ["NSE_EQ|INE030A01027", "HINDUNILVR", "HUL"],
+            ["NSE_EQ|INE090A01021", "ICICIBANK", "ICICI Bank"],
+            ["NSE_EQ|INE726G01019", "ICICIPRULI", "ICICI Prudential Life"],
+            ["NSE_EQ|INE022Q01020", "IEX", "Indian Energy Exchange"],
+            ["NSE_EQ|INE203G01027", "IGL", "Indraprastha Gas"],
+            ["NSE_EQ|INE053A01029", "INDHOTEL", "Indian Hotels (Taj)"],
+            ["NSE_EQ|INE095A01012", "INDUSINDBK", "IndusInd Bank"],
+            ["NSE_EQ|INE335Y01020", "IRCTC", "IRCTC"],
+            ["NSE_EQ|INE202E01016", "IREDA", "IREDA"],
+            ["NSE_EQ|INE154A01025", "ITC", "ITC"],
+            ["NSE_EQ|INE749A01030", "JINDALSTEL", "Jindal Steel & Power"],
+            ["NSE_EQ|INE220G01021", "JSL", "Jindal Stainless"],
+            ["NSE_EQ|INE121E01018", "JSWENERGY", "JSW Energy"],
+            ["NSE_EQ|INE019A01038", "JSWSTEEL", "JSW Steel"],
+            ["NSE_EQ|INE878B01027", "KEI", "KEI Industries"],
+            ["NSE_EQ|INE237A01028", "KOTAKBANK", "Kotak Mahindra Bank"],
+            ["NSE_EQ|INE04I401011", "KPITTECH", "KPIT Technologies"],
+            ["NSE_EQ|INE0J1Y01017", "LICI", "Life Insurance Corporation of India"],
+            ["NSE_EQ|INE018A01030", "LT", "Larsen & Toubro"],
+            ["NSE_EQ|INE326A01037", "LUPIN", "Lupin"],
+            ["NSE_EQ|INE101A01026", "M&M", "Mahindra & Mahindra"],
+            ["NSE_EQ|INE774D01024", "M&MFIN", "M&M Financial Services"],
+            ["NSE_EQ|INE634S01028", "MANKIND", "Mankind Pharma"],
+            ["NSE_EQ|INE196A01026", "MARICO", "Marico"],
+            ["NSE_EQ|INE027H01010", "MAXHEALTH", "Max Healthcare"],
+            ["NSE_EQ|INE249Z01020", "MAZDOCK", "Mazagon Dock Shipbuilders"],
+            ["NSE_EQ|INE356A01018", "MPHASIS", "Mphasis"],
+            ["NSE_EQ|INE663F01032", "NAUKRI", "Info Edge (India)"],
+            ["NSE_EQ|INE239A01024", "NESTLEIND", "Nestle India"],
+            ["NSE_EQ|INE733E01010", "NTPC", "NTPC"],
+            ["NSE_EQ|INE093I01010", "OBEROIRLTY", "Oberoi Realty"],
+            ["NSE_EQ|INE213A01029", "ONGC", "ONGC"],
+            ["NSE_EQ|INE603J01030", "PIIND", "PI Industries"],
+            ["NSE_EQ|INE318A01026", "PIDILITIND", "Pidilite Industries"],
+            ["NSE_EQ|INE752E01010", "POWERGRID", "Power Grid Corporation"],
+            ["NSE_EQ|INE020B01018", "RECLTD", "REC"],
+            ["NSE_EQ|INE415G01027", "RVNL", "Rail Vikas Nigam"],
+            ["NSE_EQ|INE018E01016", "SBICARD", "SBI Cards"],
+            ["NSE_EQ|INE123W01016", "SBILIFE", "SBI Life Insurance"],
+            ["NSE_EQ|INE062A01020", "SBIN", "State Bank of India"],
+            ["NSE_EQ|INE721A01047", "SHRIRAMFIN", "Shriram Finance"],
+            ["NSE_EQ|INE003A01024", "SIEMENS", "Siemens"],
+            ["NSE_EQ|INE647A01010", "SRF", "SRF"],
+            ["NSE_EQ|INE044A01036", "SUNPHARMA", "Sun Pharma"],
+            ["NSE_EQ|INE195A01028", "SUPREMEIND", "Supreme Industries"],
+            ["NSE_EQ|INE398R01022", "SYNGENE", "Syngene International"],
+            ["NSE_EQ|INE192A01025", "TATACONSUM", "Tata Consumer Products"],
+            ["NSE_EQ|INE155A01022", "TATAMOTORS", "Tata Motors"],
+            ["NSE_EQ|INE245A01021", "TATAPOWER", "Tata Power"],
+            ["NSE_EQ|INE081A01020", "TATASTEEL", "Tata Steel"],
+            ["NSE_EQ|INE142M01025", "TATATECH", "Tata Technologies"],
+            ["NSE_EQ|INE669C01036", "TECHM", "Tech Mahindra"],
+            ["NSE_EQ|INE280A01028", "TITAN", "Titan Company"],
+            ["NSE_EQ|INE685A01028", "TORNTPHARM", "Torrent Pharma"],
+            ["NSE_EQ|INE494B01023", "TVSMOTOR", "TVS Motor"],
+            ["NSE_EQ|INE405E01023", "UNOMINDA", "UNO Minda"],
+            ["NSE_EQ|INE628A01036", "UPL", "UPL"],
+            ["NSE_EQ|INE200M01039", "VBL", "Varun Beverages"],
+            ["NSE_EQ|INE226A01021", "VOLTAS", "Voltas"],
+            ["NSE_EQ|INE075A01022", "WIPRO", "Wipro"],
+            ["NSE_EQ|INE010B01027", "ZYDUSLIFE", "Zydus Lifesciences"]
         ];
 
-        let data = {};
-        let yearIndex = getFirstTradingDayIndexes(candles);
-        const lowPriceList = candles.map(candle => candle[3]);
-        const highestPrice = Math.max(...candles.map(candle => candle[2]));
-        const closing200 = candles.map(candle => candle[4]).slice(0, SMA_period);
-        const SMA200 = closing200.reduce((acc, val) => acc + val, 0) / SMA_period;
+        // UI elements
+        const selectStocksBtn = document.getElementById("selectStocksBtn");
+        const allStockNameDiv = document.getElementById("allStockName");
+        const closeStocksBtn = document.getElementById("closeStocksBtn");
+        const stockListContainer = document.getElementById("stockListContainer");
+        const fetchBtn = document.getElementById('fetchBtn');
+        const tableBody = document.getElementById('tableBody');
+        const tableHead = document.getElementById('tableHead');
+        const loadingDiv = document.getElementById('loading');
+        const noDataMessageDiv = document.getElementById('noDataMessage');
+        const donateBtn = document.getElementById('donateBtn');
+        const donateBtnModal = document.getElementById('donateBtnModal');
+        const upiModal = document.getElementById('upiModal');
+        const upiModalContent = upiModal.querySelector("div");
+        const closeUpiModalBtn = document.getElementById('closeUpiModalBtn');
+        const errorDiv = document.getElementById("errorMessage");
+        const stockCountSpan = document.getElementById("stockCount");
+        const stockSearchInput = document.getElementById("stockSearchInput");
 
-        const todayLowPrice = candles[0][3];
-        let percentageDown = (highestPrice - todayLowPrice) * 100 / highestPrice;
+        const messageModal = document.getElementById('messageModal');
+        const messageModalContent = messageModal.querySelector("div");
+        const messageModalText = document.getElementById("messageModalText");
+        const closeMessageModalBtn = document.getElementById("closeMessageModalBtn");
 
-        if (percentageDown > down && todayLowPrice < SMA200) {
-          Object.entries(yearIndex).forEach(([key, value]) => {
-            data[`yearLowPrice${key}`] = Math.min(...lowPriceList.slice(0, value));
-          });
-          data['highestPrice'] = highestPrice;
-          data['todayLowPrice'] = todayLowPrice;
-          data['percentageDown'] = `${percentageDown.toFixed(2)}%`;
-          data["instrument_key"] = instrument_key;
-          data["stock_symbol"] = stock_symbol;
+        let selectedStocks = [];
+        const MAX_STOCKS = 50;
+        const BATCH_SIZE = 20;
+
+        // Populate the hidden stock list on page load with checkboxes
+        function populateAllStocks(stocksToDisplay = stockList) {
+            stockListContainer.innerHTML = '';
+            stocksToDisplay.forEach(stock => {
+                const instrumentKey = stock[0];
+                const stockName = stock[2];
+                const label = document.createElement("label");
+                label.className = "flex items-center gap-2 p-2 rounded-xl shadow-sm hover:bg-slate-700 transition-colors cursor-pointer text-sm bg-slate-800";
+                
+                const isChecked = selectedStocks.some(s => s.instrument_key === instrumentKey);
+
+                label.innerHTML = `
+                    <input type="checkbox" data-instrument-key="${instrumentKey}" data-stock-name="${stockName}"
+                        class="form-checkbox h-4 w-4 text-blue-600 rounded-md bg-slate-600 border-slate-500 focus:ring-blue-500 transition-colors cursor-pointer"
+                        ${isChecked ? 'checked' : ''}>
+                    <span class="text-slate-300">${stockName}</span>
+                `;
+                label.querySelector('input').addEventListener('change', (event) => {
+                    const checkbox = event.target;
+                    const stock = {
+                        instrument_key: checkbox.dataset.instrumentKey,
+                        stock_name: checkbox.dataset.stockName,
+                    };
+                    if (checkbox.checked) {
+                        if (selectedStocks.length < MAX_STOCKS) {
+                            selectedStocks.push(stock);
+                        } else {
+                            checkbox.checked = false; // Prevent selection if over limit
+                            showMessageModal(`You can select a maximum of ${MAX_STOCKS} stocks.`);
+                        }
+                    } else {
+                        selectedStocks = selectedStocks.filter(s => s.instrument_key !== stock.instrument_key);
+                    }
+                    updateStockCount();
+                });
+                stockListContainer.appendChild(label);
+            });
+        }
+        populateAllStocks();
+
+        function updateStockCount() {
+            stockCountSpan.textContent = `${selectedStocks.length}/${MAX_STOCKS} selected`;
         }
 
-        return data;
+        // Toggle the visibility of the all-stocks div
+        function toggleAllStocks() {
+            clearErrors();
+            allStockNameDiv.classList.toggle('hidden');
+        }
 
-      } catch (error) {
-        // console still logs (devs can see full stack), UI shows friendly error
-        console.error(`Error fetching ${stock_symbol}:`, error.message);
-        showError(`${stock_symbol}: ${error.message}`);
-        return {};
-      }
-    }
+        // Search functionality
+        stockSearchInput.addEventListener('input', (event) => {
+            const searchTerm = event.target.value.toLowerCase();
+            const filteredStocks = stockList.filter(stock => 
+                stock[2].toLowerCase().includes(searchTerm) || stock[1].toLowerCase().includes(searchTerm)
+            );
+            populateAllStocks(filteredStocks);
+        });
 
-    // Main function to iterate through all stocks (logic unchanged)
-    async function forEachStock(stockList, down, SMA_period) {
-      const finalOutput = {};
-      const BATCH_SIZE = 20;
+        selectStocksBtn.addEventListener('click', toggleAllStocks);
+        closeStocksBtn.addEventListener('click', toggleAllStocks);
 
-      loadingDiv.classList.remove('hidden');
-      tableBody.innerHTML = '';
-      noDataMessageDiv.classList.add('hidden');
-      clearErrors(); // 🔴 Clear previous errors when a run starts (UI-only)
+        // UPI modal functionality
+        function showUpiModal() {
+            upiModal.classList.remove('hidden');
+            setTimeout(() => {
+                upiModalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
 
-      for (let i = 0; i < stockList.length; i += BATCH_SIZE) {
-        const batch = stockList.slice(i, i + BATCH_SIZE);
-        const promises = batch.map(stock =>
-          fetchData(stock[0], stock[1], down, SMA_period)
-          .then(data => {
-            if (Object.keys(data).length !== 0) {
-              finalOutput[stock[1]] = data;
+        function hideUpiModal() {
+            upiModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                upiModal.classList.add('hidden');
+            }, 300);
+        }
+
+        donateBtn.addEventListener('click', showUpiModal);
+        donateBtnModal.addEventListener('click', showUpiModal);
+        closeUpiModalBtn.addEventListener('click', hideUpiModal);
+
+        // Custom message modal
+        function showMessageModal(message) {
+            messageModalText.textContent = message;
+            messageModal.classList.remove('hidden');
+            setTimeout(() => {
+                messageModalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function hideMessageModal() {
+            messageModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                messageModal.classList.add('hidden');
+            }, 300);
+        }
+        
+        closeMessageModalBtn.addEventListener('click', hideMessageModal);
+        messageModal.addEventListener('click', (e) => {
+            if (e.target === messageModal) {
+                hideMessageModal();
             }
-          })
-        );
+        });
 
-        await Promise.all(promises);
-        console.log(`✅ Completed batch ${i / BATCH_SIZE + 1}`);
-        await sleep(2000);
-      }
+        // Close modal when clicking outside of it
+        upiModal.addEventListener('click', (e) => {
+            if (e.target === upiModal) {
+                hideUpiModal();
+            }
+        });
 
-      loadingDiv.classList.add('hidden');
-      showDataInTable(finalOutput);
-    }
+        // Helper function for rate limiting API calls
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
 
-    // Click handler for the fetch button
-    document.getElementById('fetchBtn').addEventListener('click', () => {
-      const down = parseFloat(document.getElementById('down').value);
-      const sma = parseInt(document.getElementById('sma').value);
+        // Error UI helpers (UI-only; do not change logic)
+        function showError(message) {
+            errorDiv.classList.remove("hidden");
+            const p = document.createElement("p");
+            p.textContent = "⚠️ " + message;
+            errorDiv.appendChild(p);
+        }
 
-      // Set up table headers
-      tableHead.innerHTML = `
-          <tr>
-            <th class="rounded-tl-xl">Stock Symbol</th>
-            <th>Highest Price</th>
-            <th>Today's  Low</th>
-            <th>% Down from High</th>
-            <th>Till 2025 Lowest</th>
-            <th>Till 2024 Lowest</th>
-            <th>Till 2023 Lowest</th>
-            <th>Till 2022 Lowest</th>
-            <th>Till 2021 Lowest</th>
-            <th class="rounded-tr-xl">Till 2020 Lowest</th>
-          </tr>
-        `;
+        function clearErrors() {
+            errorDiv.innerHTML = "";
+            errorDiv.classList.add("hidden");
+        }
 
-      forEachStock(stockList, down, sma);
-    });
+        // Gets the index of the first trading day of each year
+        function getFirstTradingDayIndexes(candles) {
+            const seenYears = new Set();
+            const indexes = {};
+            for (let i = candles.length - 1; i >= 0; i--) {
+                const dateStr = candles[i][0];
+                const year = new Date(dateStr).getFullYear();
+                if (!seenYears.has(year)) {
+                    seenYears.add(year);
+                    indexes[year] = i;
+                }
+            }
+            return indexes;
+        }
 
-    // Function to display the fetched data in the table
-    function showDataInTable(data) {
-      const stocksToShow = Object.values(data);
-      if (stocksToShow.length === 0) {
-        noDataMessageDiv.classList.remove('hidden');
-        return;
-      }
+        // Fetch data for a single stock (logic kept the same)
+        async function fetchData(instrument_key, stock_symbol, down = 20, SMA_period = 200) {
+            const todayDate = new Date().toISOString().split('T')[0];
+            const urlIntra = `https://api.upstox.com/v3/historical-candle/intraday/${instrument_key}/days/1`;
+            const urlHistory = `https://api.upstox.com/v3/historical-candle/${instrument_key}/days/1/${todayDate}/2020-01-01`;
+            const headers = {
+                'Accept': 'application/json'
+            };
 
-      for (let stock of stocksToShow) {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${stock.stock_symbol || '-'}</td>
-            <td>${stock.highestPrice ? stock.highestPrice.toFixed(2) : '-'}</td>
-            <td>${stock.todayLowPrice ? stock.todayLowPrice.toFixed(2) : '-'}</td>
-            <td class="down-from-top">${stock.percentageDown || '-'}</td>
-            <td>${stock.yearLowPrice2025 ? stock.yearLowPrice2025.toFixed(2) : '-'}</td>
-            <td>${stock.yearLowPrice2024 ? stock.yearLowPrice2024.toFixed(2) : '-'}</td>
-            <td>${stock.yearLowPrice2023 ? stock.yearLowPrice2023.toFixed(2) : '-'}</td>
-            <td>${stock.yearLowPrice2022 ? stock.yearLowPrice2022.toFixed(2) : '-'}</td>
-            <td>${stock.yearLowPrice2021 ? stock.yearLowPrice2021.toFixed(2) : '-'}</td>
-            <td>${stock.yearLowPrice2020 ? stock.yearLowPrice2020.toFixed(2) : '-'}</td>
-          `;
-        tableBody.appendChild(row);
-      }
-    }
-  </script>
+            try {
+                const [responseHist, responseIntra] = await Promise.all([
+                    axios.get(urlHistory, {
+                        headers
+                    }),
+                    axios.get(urlIntra, {
+                        headers
+                    })
+                ]);
+
+                let candles = [
+                    ...responseIntra.data.data.candles,
+                    ...responseHist.data.data.candles
+                ];
+
+                let data = {};
+                let yearIndex = getFirstTradingDayIndexes(candles);
+                const lowPriceList = candles.map(candle => candle[3]);
+                const highestPrice = Math.max(...candles.map(candle => candle[2]));
+                const closing200 = candles.map(candle => candle[4]).slice(0, SMA_period);
+                const SMA200 = closing200.reduce((acc, val) => acc + val, 0) / SMA_period;
+
+                const todayLowPrice = candles[0][3];
+                let percentageDown = ((highestPrice - todayLowPrice) * 100) / highestPrice;
+
+                if (percentageDown > down && todayLowPrice < SMA200) {
+                    Object.entries(yearIndex).forEach(([key, value]) => {
+                        data[`yearLowPrice${key}`] = Math.min(...lowPriceList.slice(0, value));
+                    });
+                    data['highestPrice'] = highestPrice;
+                    data['todayLowPrice'] = todayLowPrice;
+                    data['percentageDown'] = parseFloat(percentageDown.toFixed(2));
+                    data["instrument_key"] = instrument_key;
+                    data["stock_symbol"] = stock_symbol;
+                }
+
+                return data;
+
+            } catch (error) {
+                console.error(`Error fetching ${stock_symbol}:`, error.message);
+                showError(`${stock_symbol}: ${error.message}`);
+                return {};
+            }
+        }
+
+        // Main function to iterate through selected stocks
+        async function fetchSelectedStocks(stocks, down, SMA_period) {
+            const finalOutput = {};
+
+            loadingDiv.classList.remove('hidden');
+            tableBody.innerHTML = '';
+            noDataMessageDiv.classList.add('hidden');
+            clearErrors();
+
+            for (let i = 0; i < stocks.length; i += BATCH_SIZE) {
+                const batch = stocks.slice(i, i + BATCH_SIZE);
+                const promises = batch.map(stock =>
+                    fetchData(stock.instrument_key, stock.stock_name, down, SMA_period)
+                        .then(data => {
+                            if (Object.keys(data).length !== 0) {
+                                finalOutput[stock.stock_name] = data;
+                            }
+                        })
+                );
+
+                await Promise.all(promises);
+                console.log(`✅ Completed batch ${i / BATCH_SIZE + 1}`);
+                await sleep(2000);
+            }
+
+            loadingDiv.classList.add('hidden');
+            showDataInTable(finalOutput);
+        }
+
+        // Click handler for the fetch button
+        document.getElementById('fetchBtn').addEventListener('click', () => {
+            if (selectedStocks.length === 0) {
+                showMessageModal("Please select at least one stock to screen.");
+                return;
+            }
+            if (selectedStocks.length > MAX_STOCKS) {
+                showMessageModal(`Please select a maximum of ${MAX_STOCKS} stocks.`);
+                return;
+            }
+            const down = parseFloat(document.getElementById('down').value);
+            const sma = parseInt(document.getElementById('sma').value);
+
+            tableHead.innerHTML = `
+                <tr>
+                    <th class="rounded-tl-xl">Stock Symbol</th>
+                    <th>Highest Price</th>
+                    <th>Today's Low</th>
+                    <th>% Down from High</th>
+                    <th>Till 2025 Lowest</th>
+                    <th>Till 2024 Lowest</th>
+                    <th>Till 2023 Lowest</th>
+                    <th>Till 2022 Lowest</th>
+                    <th>Till 2021 Lowest</th>
+                    <th class="rounded-tr-xl">Till 2020 Lowest</th>
+                </tr>
+            `;
+
+            fetchSelectedStocks(selectedStocks, down, sma);
+        });
+
+        // Function to display the fetched data in the table
+        function showDataInTable(data) {
+            const stocksToShow = Object.values(data);
+            if (stocksToShow.length === 0) {
+                noDataMessageDiv.classList.remove('hidden');
+                return;
+            }
+
+            // Sort the data by percentageDown in descending order
+            stocksToShow.sort((a, b) => b.percentageDown - a.percentageDown);
+
+            tableBody.innerHTML = '';
+            for (let stock of stocksToShow) {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${stock.stock_symbol || '-'}</td>
+                    <td>${stock.highestPrice ? stock.highestPrice.toFixed(2) : '-'}</td>
+                    <td>${stock.todayLowPrice ? stock.todayLowPrice.toFixed(2) : '-'}</td>
+                    <td class="down-from-top">${stock.percentageDown.toFixed(2)}%</td>
+                    <td>${stock.yearLowPrice2025 ? stock.yearLowPrice2025.toFixed(2) : '-'}</td>
+                    <td>${stock.yearLowPrice2024 ? stock.yearLowPrice2024.toFixed(2) : '-'}</td>
+                    <td>${stock.yearLowPrice2023 ? stock.yearLowPrice2023.toFixed(2) : '-'}</td>
+                    <td>${stock.yearLowPrice2022 ? stock.yearLowPrice2022.toFixed(2) : '-'}</td>
+                    <td>${stock.yearLowPrice2021 ? stock.yearLowPrice2021.toFixed(2) : '-'}</td>
+                    <td>${stock.yearLowPrice2020 ? stock.yearLowPrice2020.toFixed(2) : '-'}</td>
+                `;
+                tableBody.appendChild(row);
+            }
+        }
+    </script>
 </body>
 
 </html>
-
